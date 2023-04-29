@@ -4,6 +4,8 @@
 #include <string.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <math.h>
+#include <ctime>
 using namespace std;
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
@@ -43,6 +45,10 @@ int main()
     glViewport(0, 0, 800, 600);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     // 顶点着色器
+    // 打印顶点着色器最大支持的顶点属性个数
+    int nAttributes;
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nAttributes);
+    cout << nAttributes << endl;
     ifstream vertexIfs;
     vertexIfs.open("D:/LearnOpenGL/shader/vertex.vert");
     stringstream vertexSS;
@@ -122,6 +128,14 @@ int main()
         glClearColor(1.0, 1.0, 1.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(shaderProgram);
+        // 更改uniform变量
+        float timeNow = clock();
+        float greenValue = sin(timeNow / 1000) * 0.5 + 0.5;
+        int uniformLocation = glGetUniformLocation(shaderProgram, "greenValue");
+        if (uniformLocation != -1)
+        {
+            glUniform1f(uniformLocation, greenValue);
+        }
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         glfwSwapBuffers(window);
