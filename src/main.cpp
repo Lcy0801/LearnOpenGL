@@ -116,11 +116,16 @@ int main()
     unsigned int vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    float vertexes[] = {-0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.0, 0.5, 0.0};
+    float vertexes[] = {
+        -0.5, -0.5, 0.0, 1.0, 0, 0,
+        0.5, -0.5, 0.0, 0, 1.0, 0,
+        0.0, 0.5, 0.0, 0, 0, 1.0};
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertexes), vertexes, GL_STATIC_DRAW);
     // 链接着色器顶点属性与顶点数据的对应关系
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * sizeof(GL_FLOAT), 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * sizeof(GL_FLOAT), 0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, false, 6 * sizeof(GL_FLOAT), (void *)(3 * sizeof(GL_FLOAT)));
+    glEnableVertexAttribArray(1);
     glBindVertexArray(0);
     while (!glfwWindowShouldClose(window))
     {
