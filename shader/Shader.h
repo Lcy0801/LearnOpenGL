@@ -119,6 +119,10 @@ public:
             std::cout << uniformName << "不存在!" << std::endl;
         }
     }
+    void destroy()
+    {
+        glDeleteProgram(ID);
+    }
 };
 
 #endif
