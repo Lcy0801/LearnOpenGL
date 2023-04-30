@@ -1,10 +1,13 @@
 #version 460 core
 
 layout (location = 0) in vec3 aPos;
-uniform float greenValue;
-out vec4 vertexColor;
+layout(location = 1) in vec3 aColor;
+layout(location = 2) in vec2 aTextcoord;
+out vec4 pixColor;
+out vec2 pixTextCoord;
 void main()
 {
    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-   vertexColor = vec4(0,greenValue,0,1.0);
+   pixColor = vec4(aColor,1);
+   pixTextCoord = aTextcoord;
 }
