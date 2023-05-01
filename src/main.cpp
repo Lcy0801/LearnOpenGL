@@ -7,12 +7,16 @@
 #include <math.h>
 #include <ctime>
 #include <Shader.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 // 引入标准图像库 加载纹理贴图
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
 using namespace std;
+using namespace glm;
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
@@ -52,7 +56,6 @@ int main()
     glViewport(0, 0, 800, 800);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     Shader shader("../shader/vertex.vert", "../shader/frag.frag");
-    // 顶点数组对象
     float vertices[] = {
         -1.0, -1.0, 0, 1, 0, 0, 0, 1,
         1.0, -1.0, 0, 0, 1, 0, 1, 1,
@@ -61,6 +64,7 @@ int main()
     unsigned int indices[] = {
         0, 1, 2,
         0, 2, 3};
+    // 顶点数组对象
     unsigned int vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -81,7 +85,6 @@ int main()
     glVertexAttribPointer(2, 2, GL_FLOAT, false, 8 * sizeof(GL_FLOAT), (void *)(6 * sizeof(GL_FLOAT)));
     glEnableVertexAttribArray(2);
     glBindVertexArray(0);
-
     auto loadTexture = [](unsigned int &texture, const char *imageFile, int TextureUnit)
     {
         // 纹理
@@ -130,6 +133,15 @@ int main()
         timeValue /= CLOCKS_PER_SEC;
         float mixPercent = timeValue / 5;
         shader.setUniformFloat("mixPercent", mixPercent);
+        // 顶点变换
+        mat4 transform;
+        transform = translate(transform, vec3(mixPercent * 2 - 1, 1 - mixPercent * 2, 0));
+        transform = rotate(transform, mixPercent * radians(90.0f), vec3(0, 0, 1));
+        float scaleValue;
+        scaleValue = mixPercent > 0.5 ? 2 * (1 - mixPercent) : 2 * mixPercent;
+        scaleValue *= 0.5;
+        transform = scale(transform, vec3(scaleValue, scaleValue, scaleValue));
+        glUniformMatrix4fv(glGetUniformLocation(shader.ID, "transform"), 1, GL_FALSE, value_ptr(transform));
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(window);
