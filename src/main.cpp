@@ -14,13 +14,18 @@
 // 引入标准图像库 加载纹理贴图
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#define screenWidth 800
+#define screenHeight 800
 
 using namespace std;
 using namespace glm;
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
-    glViewport(0, 0, width, height);
+    if (window)
+    {
+        glViewport(0, 0, width, height);
+    }
 }
 
 void processInput(GLFWwindow *window)
@@ -39,7 +44,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    GLFWwindow *window = glfwCreateWindow(800, 800, "LearnOpenGL", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(screenWidth, screenHeight, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
         cout << "初始化窗口失败!" << endl;
@@ -53,7 +58,7 @@ int main()
         glfwTerminate(); // 释放资源
         exit(-1);
     }
-    glViewport(0, 0, 800, 800);
+    glViewport(0, 0, screenWidth, screenHeight);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     Shader shader("../shader/vertex.vert", "../shader/frag.frag");
     float vertices[] = {
@@ -117,31 +122,23 @@ int main()
     // 纹理
     unsigned int texture0;
     loadTexture(texture0, "D:/LearnOpenGL/src/texture0.png", GL_TEXTURE0);
-    unsigned int texture1;
-    loadTexture(texture1, "D:/LearnOpenGL/src/texture1.png", GL_TEXTURE1);
     // 设置着色器sampler 一定要先激活着色器程序
     shader.use();
     shader.setUniformInt("texture0", 0);
-    shader.setUniformInt("texture1", 1);
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
         glClearColor(1.0, 1.0, 1.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
         shader.use();
-        float timeValue = clock() % (CLOCKS_PER_SEC * 5);
-        timeValue /= CLOCKS_PER_SEC;
-        float mixPercent = timeValue / 5;
-        shader.setUniformFloat("mixPercent", mixPercent);
-        // 顶点变换
-        mat4 transform;
-        transform = translate(transform, vec3(mixPercent * 2 - 1, 1 - mixPercent * 2, 0));
-        transform = rotate(transform, mixPercent * radians(90.0f), vec3(0, 0, 1));
-        float scaleValue;
-        scaleValue = mixPercent > 0.5 ? 2 * (1 - mixPercent) : 2 * mixPercent;
-        scaleValue *= 0.5;
-        transform = scale(transform, vec3(scaleValue, scaleValue, scaleValue));
-        glUniformMatrix4fv(glGetUniformLocation(shader.ID, "transform"), 1, GL_FALSE, value_ptr(transform));
+        // 空间变换
+        mat4 model, view, project;
+        model = rotate(model, radians(-55.0f), vec3(1, 0, 0));
+        view = translate(view, vec3(0, 0, -3));
+        project = perspective(45.0f, (float)screenWidth / screenHeight, 0.1f, 100.0f);
+        glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, false, value_ptr(model));
+        glUniformMatrix4fv(glGetUniformLocation(shader.ID, "view"), 1, false, value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(shader.ID, "project"), 1, false, value_ptr(project));
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(window);
@@ -152,7 +149,6 @@ int main()
     glDeleteBuffers(1, &ibo);
     shader.destroy();
     glDeleteTextures(1, &texture0);
-    glDeleteTextures(1, &texture1);
     glfwTerminate();
     return 0;
 }

@@ -5,10 +5,12 @@ layout(location = 1) in vec3 aColor;
 layout(location = 2) in vec2 aTextcoord;
 out vec4 pixColor;
 out vec2 pixTextCoord;
-uniform mat4 transform;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 project;
 void main()
 {
-   gl_Position = transform*vec4(aPos.x, aPos.y, aPos.z, 1.0);
+   gl_Position = project*view*model*vec4(aPos.x, aPos.y, aPos.z, 1.0);
    pixColor = vec4(aColor,1);
    pixTextCoord = aTextcoord;
 }
