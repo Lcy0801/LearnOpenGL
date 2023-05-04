@@ -20,6 +20,14 @@
 using namespace std;
 using namespace glm;
 
+// 定义相机参数相关的全局变量
+vec3 cameraPos = vec3(0, 0, 3);
+vec3 cameraFront = vec3(0, 0, -1);
+vec3 cameraUp = vec3(0, 1, 0);
+float cameraSpeed = 10;
+// 相邻两帧的时间间隔 用于平衡不同性能机器渲染时相机的移动速度
+float deltaTime = 0, lastTime = 0;
+
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
     if (window)
@@ -30,9 +38,30 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 
 void processInput(GLFWwindow *window)
 {
+    // 关闭窗口
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(window, true);
+    }
+    // 前进
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        cameraPos = cameraPos + cameraFront * cameraSpeed * deltaTime;
+    }
+    // 后退
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        cameraPos = cameraPos - cameraFront * cameraSpeed * deltaTime;
+    }
+    // 左移
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        cameraPos = cameraPos + normalize(cross(cameraUp, cameraFront)) * cameraSpeed * deltaTime;
+    }
+    // 右移
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        cameraPos = cameraPos + normalize(cross(cameraFront, cameraUp)) * cameraSpeed * deltaTime;
     }
 }
 
@@ -227,11 +256,7 @@ int main()
         shader.setUniformInt("texture1", 12);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(vao);
-        float radius = 3;
-        float cameraX = cos(glfwGetTime()) * radius;
-        float cameraZ = sin(glfwGetTime()) * radius - 1.5;
-        float cameraY = 0;
-        view = lookAt(vec3(cameraX, cameraY, cameraZ), vec3(0, 0, -1.5), vec3(0, 1, 0));
+        view = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         project = perspective(45.0f, (float)screenWidth / screenHeight, 0.1f, 100.0f);
         glUniformMatrix4fv(glGetUniformLocation(shader.ID, "view"), 1, false, value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(shader.ID, "project"), 1, false, value_ptr(project));
@@ -255,6 +280,9 @@ int main()
             }
         }
         glfwSwapBuffers(window);
+        float currentTime = glfwGetTime();
+        deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
         glfwPollEvents();
     }
     glDeleteVertexArrays(1, &vao);
