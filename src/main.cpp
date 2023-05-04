@@ -209,6 +209,7 @@ int main()
     loadTexture(texture11, "D:/LearnOpenGL/textures/11.png", GL_TEXTURE11);
     unsigned int texturebg;
     loadTexture(texturebg, "D:/LearnOpenGL/textures/bg.png", GL_TEXTURE12);
+
     // 开启深度测试
     glEnable(GL_DEPTH_TEST);
     while (!glfwWindowShouldClose(window))
@@ -233,7 +234,12 @@ int main()
             float timeValue = glfwGetTime();
             model = translate(model, cubePositions[i]);
             model = rotate(model, timeValue + radians(i * 30.0f), vec3(1, 1, 1));
-            view = translate(view, vec3(0, 0, -3));
+            float radius = 3;
+            float cameraX = cos(glfwGetTime()) * radius;
+            float cameraZ = sin(glfwGetTime()) * radius-1.5;
+            float cameraY = 0;
+            view = lookAt(vec3(cameraX, cameraY, cameraZ), vec3(0, 0, -1.5), vec3(0, 1, 0));
+
             project = perspective(45.0f, (float)screenWidth / screenHeight, 0.1f, 100.0f);
             glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, false, value_ptr(model));
             glUniformMatrix4fv(glGetUniformLocation(shader.ID, "view"), 1, false, value_ptr(view));
