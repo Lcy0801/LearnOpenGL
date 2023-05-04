@@ -25,9 +25,20 @@ vec3 cameraPos = vec3(0, 0, 3);
 vec3 cameraFront = vec3(0, 0, -1);
 vec3 cameraUp = vec3(0, 1, 0);
 float cameraSpeed = 10;
+// 视场大小
+// 变小会产生放大的效果 变大会产生缩小的效果
+float fov = 45;
+
+// 相机欧拉角
+// 全局变量定义的同时必须初始化
+float yaw_ = 90.0, pitch_ = 0.0;
 // 相邻两帧的时间间隔 用于平衡不同性能机器渲染时相机的移动速度
 float deltaTime = 0, lastTime = 0;
+float lastX = 400, lastY = 400;
+float sensitivity = 0.05;
+bool firstMouse = true;
 
+// 视窗大小改变回调函数
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
     if (window)
@@ -36,6 +47,53 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
     }
 }
 
+// 鼠标移动回调函数
+void mouse_callback(GLFWwindow *window, double xpos, double ypos)
+{
+    if (firstMouse)
+    {
+        xpos = lastX;
+        ypos = lastY;
+        firstMouse = false;
+    }
+    float xoffset, yoffset;
+    xoffset = xpos - lastX;
+    yoffset = ypos - lastY;
+    lastX = xpos;
+    lastY = ypos;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+    yaw_ += xoffset;
+    pitch_ += yoffset;
+    if (pitch_ > 89)
+    {
+        pitch_ = 89;
+    }
+    else if (pitch_ < -89)
+    {
+        pitch_ = -89;
+    }
+    float directionX, directionY, directionZ;
+    directionX = cos(radians(pitch_)) * cos(radians(yaw_));
+    directionY = sin(radians(pitch_));
+    directionZ = -cos(radians(pitch_)) * sin(radians(yaw_));
+    cameraFront = normalize(vec3(directionX, directionY, directionZ));
+}
+
+// 鼠标滚轮回调函数
+void scroll_back(GLFWwindow *window, double xoffset, double yoffset)
+{
+    fov += sensitivity * yoffset;
+    if (fov > 45)
+    {
+        fov = 45;
+    }
+    if (fov < 1)
+    {
+        fov = 1;
+    }
+    return;
+}
 void processInput(GLFWwindow *window)
 {
     // 关闭窗口
@@ -89,6 +147,8 @@ int main()
     }
     glViewport(0, 0, screenWidth, screenHeight);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_back);
     Shader shader("../shader/vertex.vert", "../shader/frag.frag");
     float vertices[] = {
         -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
@@ -238,9 +298,10 @@ int main()
     loadTexture(texture11, "D:/LearnOpenGL/textures/11.png", GL_TEXTURE11);
     unsigned int texturebg;
     loadTexture(texturebg, "D:/LearnOpenGL/textures/bg.png", GL_TEXTURE12);
-
     // 开启深度测试
     glEnable(GL_DEPTH_TEST);
+    // 鼠标输入相关操作
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
@@ -257,7 +318,7 @@ int main()
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(vao);
         view = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-        project = perspective(45.0f, (float)screenWidth / screenHeight, 0.1f, 100.0f);
+        project = perspective(fov, (float)screenWidth / screenHeight, 0.1f, 100.0f);
         glUniformMatrix4fv(glGetUniformLocation(shader.ID, "view"), 1, false, value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(shader.ID, "project"), 1, false, value_ptr(project));
         for (int i = 0; i < 10; i++)
