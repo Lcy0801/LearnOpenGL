@@ -227,23 +227,22 @@ int main()
         shader.setUniformInt("texture1", 12);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(vao);
+        float radius = 3;
+        float cameraX = cos(glfwGetTime()) * radius;
+        float cameraZ = sin(glfwGetTime()) * radius - 1.5;
+        float cameraY = 0;
+        view = lookAt(vec3(cameraX, cameraY, cameraZ), vec3(0, 0, -1.5), vec3(0, 1, 0));
+        project = perspective(45.0f, (float)screenWidth / screenHeight, 0.1f, 100.0f);
+        glUniformMatrix4fv(glGetUniformLocation(shader.ID, "view"), 1, false, value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(shader.ID, "project"), 1, false, value_ptr(project));
         for (int i = 0; i < 10; i++)
         {
             // 空间变换
-            mat4 model, view, project;
+            mat4 model;
             float timeValue = glfwGetTime();
             model = translate(model, cubePositions[i]);
             model = rotate(model, timeValue + radians(i * 30.0f), vec3(1, 1, 1));
-            float radius = 3;
-            float cameraX = cos(glfwGetTime()) * radius;
-            float cameraZ = sin(glfwGetTime()) * radius-1.5;
-            float cameraY = 0;
-            view = lookAt(vec3(cameraX, cameraY, cameraZ), vec3(0, 0, -1.5), vec3(0, 1, 0));
-
-            project = perspective(45.0f, (float)screenWidth / screenHeight, 0.1f, 100.0f);
             glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, false, value_ptr(model));
-            glUniformMatrix4fv(glGetUniformLocation(shader.ID, "view"), 1, false, value_ptr(view));
-            glUniformMatrix4fv(glGetUniformLocation(shader.ID, "project"), 1, false, value_ptr(project));
             float mixPercent = sin(timeValue) * 0.5 + 0.5;
             shader.setUniformFloat("mixPercent", mixPercent);
             for (int j = 0; j < 6; j++)
