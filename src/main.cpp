@@ -220,7 +220,7 @@ int main()
     // 绑定默认vao
     glBindVertexArray(0);
     // 开启深度测试
-    glEnable(GL_DEPTH_TEST);
+    // glEnable(GL_DEPTH_TEST);
     // 开启剔除面
     // glEnable(GL_CULL_FACE);
     // glCullFace(GL_BACK);
@@ -268,7 +268,7 @@ int main()
     glGenBuffers(1, &lightVbo);
     glBindBuffer(GL_ARRAY_BUFFER, lightVbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GL_FLOAT) * sphereVertices.size(), &sphereVertices[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * size_t(GL_FLOAT), 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * sizeof(GL_FLOAT), 0);
     glEnableVertexAttribArray(0);
     unsigned int lightIbo;
     glGenBuffers(1, &lightIbo);
@@ -285,15 +285,15 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         mat4 model, view, project;
         model = translate(model, vec3(1, 1, 1));
-        model = scale(model, vec3(10));
+        model = scale(model, vec3(0.3));
         view = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         project = perspective(fov, (float)screenWidth / screenHeight, 0.1f, 100.0f);
-        // glBindVertexArray(lightVao);
-        // lightShader.use();
-        // glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, false, value_ptr(model));
-        // glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "view"), 1, false, value_ptr(view));
-        // glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "project"), 1, false, value_ptr(project));
-        // glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_INT, 0);
+        glBindVertexArray(lightVao);
+        lightShader.use();
+        glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, false, value_ptr(model));
+        glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "view"), 1, false, value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "project"), 1, false, value_ptr(project));
+        glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
         glBindVertexArray(vao);
         shader.use();
         shader.setUniformVec3("objColor", 1, 0.5, 0.31);
