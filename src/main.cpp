@@ -52,8 +52,8 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos)
 {
     if (firstMouse)
     {
-        xpos = lastX;
-        ypos = lastY;
+        lastX = xpos;
+        lastY = ypos;
         firstMouse = false;
     }
     float xoffset, yoffset;
