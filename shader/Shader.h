@@ -119,6 +119,18 @@ public:
             std::cout << uniformName << "不存在!" << std::endl;
         }
     }
+    void setUniformVec3(const std::string &uniformName, float v1, float v2, float v3)
+    {
+        int uniformLocation = glGetUniformLocation(ID, uniformName.c_str());
+        if (uniformLocation != -1)
+        {
+            glUniform3f(uniformLocation, v1, v2, v3);
+        }
+        else
+        {
+            std::cout << uniformName << "不存在!" << std::endl;
+        }
+    }
     void destroy()
     {
         glDeleteProgram(ID);

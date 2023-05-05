@@ -1,11 +1,9 @@
 #version 460 core
 
 out vec4 fragColor;
-in vec2 pixTextCoord;
-uniform sampler2D texture0;
-uniform sampler2D texture1;
-uniform float mixPercent;
+uniform vec3 objColor;
+uniform vec3 lightColor;
 void main()
 {
-    fragColor =mix(texture(texture0,pixTextCoord),texture(texture1,pixTextCoord),mixPercent);
+    fragColor = vec4(objColor,1)*vec4(lightColor,1);
 }
