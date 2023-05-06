@@ -11,6 +11,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
+using namespace std;
+using namespace glm;
 
 // 引入标准图像库 加载纹理贴图
 #define STB_IMAGE_IMPLEMENTATION
@@ -23,9 +25,9 @@
 // 球形光源的半径大小
 #define RAIDUS 1
 #define PI 3.1415926
+#define LIGHTPOS vec3(1, 1, 1)
 
-using namespace std;
-using namespace glm;
+// 光源位置
 
 // 定义相机参数相关的全局变量
 vec3 cameraPos = vec3(0, 0, 3);
@@ -165,47 +167,47 @@ int main()
     // 绘制投光物
     Shader shader("../shader/vertex.vert", "../shader/frag.frag");
     float vertices[] = {
-        -0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f, 0.5f, -0.5f,
-        0.5f, 0.5f, -0.5f,
-        -0.5f, 0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
+        0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
 
-        -0.5f, -0.5f, 0.5f,
-        0.5f, -0.5f, 0.5f,
-        0.5f, 0.5f, 0.5f,
-        0.5f, 0.5f, 0.5f,
-        -0.5f, 0.5f, 0.5f,
-        -0.5f, -0.5f, 0.5f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 
-        -0.5f, 0.5f, 0.5f,
-        -0.5f, 0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, 0.5f,
-        -0.5f, 0.5f, 0.5f,
+        -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
 
-        0.5f, 0.5f, 0.5f,
-        0.5f, 0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, 0.5f,
-        0.5f, 0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
 
-        -0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, 0.5f,
-        0.5f, -0.5f, 0.5f,
-        -0.5f, -0.5f, 0.5f,
-        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f,
 
-        -0.5f, 0.5f, -0.5f,
-        0.5f, 0.5f, -0.5f,
-        0.5f, 0.5f, 0.5f,
-        0.5f, 0.5f, 0.5f,
-        -0.5f, 0.5f, 0.5f,
-        -0.5f, 0.5f, -0.5f};
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f};
     // 顶点数组对象
     unsigned int vao;
     glGenVertexArrays(1, &vao);
@@ -215,12 +217,18 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     // 链接着色器顶点属性与顶点数据的对应关系
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * sizeof(GL_FLOAT), 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, 8 * sizeof(GL_FLOAT), 0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, false, 8 * sizeof(GL_FLOAT), (void *)(3 * sizeof(GL_FLOAT)));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, false, 8 * sizeof(GL_FLOAT), (void *)(6 * sizeof(GL_FLOAT)));
+    // 纹理
+    unsigned int texture;
+    
     // 绑定默认vao
     glBindVertexArray(0);
     // 开启深度测试
-    // glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
     // 开启剔除面
     // glEnable(GL_CULL_FACE);
     // glCullFace(GL_BACK);
@@ -284,26 +292,32 @@ int main()
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         mat4 model, view, project;
-        model = translate(model, vec3(1, 1, 1));
-        model = scale(model, vec3(0.3));
+        model = translate(model, LIGHTPOS);
+        model = scale(model, vec3(0.1));
         view = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         project = perspective(fov, (float)screenWidth / screenHeight, 0.1f, 100.0f);
         glBindVertexArray(lightVao);
         lightShader.use();
-        glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, false, value_ptr(model));
-        glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "view"), 1, false, value_ptr(view));
-        glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "project"), 1, false, value_ptr(project));
+        lightShader.setUniformMatrix4("model", model);
+        lightShader.setUniformMatrix4("view", view);
+        lightShader.setUniformMatrix4("project", project);
         glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
         glBindVertexArray(vao);
         shader.use();
-        shader.setUniformVec3("objColor", 1, 0.5, 0.31);
-        shader.setUniformVec3("lightColor", 1, 1, 1);
+        shader.setUniformFloat("ambientStrength", 0.1);
+        shader.setUniformVec3("lightPos", LIGHTPOS);
+        shader.setUniformVec3("objColor", vec3(1, 0.5, 0.31));
+        shader.setUniformVec3("lightColor", vec3(1, 1, 1));
         float timeValue = glfwGetTime();
         mat4 model_;
-        model_ = rotate(model_, timeValue, vec3(1, 1, 1));
-        glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, false, value_ptr(model_));
-        glUniformMatrix4fv(glGetUniformLocation(shader.ID, "view"), 1, false, value_ptr(view));
-        glUniformMatrix4fv(glGetUniformLocation(shader.ID, "project"), 1, false, value_ptr(project));
+        model_ = rotate(model_, timeValue, vec3(1, 0, 1));
+        shader.setUniformMatrix4("model", model_);
+        shader.setUniformMatrix4("view", view);
+        shader.setUniformMatrix4("project", project);
+        // 设置片段着色器中的法线矩阵
+        shader.setUniformMatrix3("normalMatrix", transpose(inverse(mat3(model_))));
+        shader.setUniformVec3("cameraPos", cameraPos);
+        shader.setUniformFloat("specularStrength", 0.5);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glfwSwapBuffers(window);
         float currentTime = glfwGetTime();

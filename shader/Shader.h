@@ -5,6 +5,8 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class Shader
 {
@@ -119,12 +121,36 @@ public:
             std::cout << uniformName << "不存在!" << std::endl;
         }
     }
-    void setUniformVec3(const std::string &uniformName, float v1, float v2, float v3)
+    void setUniformVec3(const std::string &uniformName, glm::vec3 uniformValue)
     {
         int uniformLocation = glGetUniformLocation(ID, uniformName.c_str());
         if (uniformLocation != -1)
         {
-            glUniform3f(uniformLocation, v1, v2, v3);
+            glUniform3f(uniformLocation, uniformValue[0], uniformValue[1], uniformValue[2]);
+        }
+        else
+        {
+            std::cout << uniformName << "不存在!" << std::endl;
+        }
+    }
+    void setUniformMatrix4(const std::string &uniformName, glm::mat4 uniformValue)
+    {
+        int uniformLocation = glGetUniformLocation(ID, uniformName.c_str());
+        if (uniformLocation != -1)
+        {
+            glUniformMatrix4fv(uniformLocation, 1, false, glm::value_ptr(uniformValue));
+        }
+        else
+        {
+            std::cout << uniformName << "不存在!" << std::endl;
+        }
+    }
+    void setUniformMatrix3(const std::string &uniformName, glm::mat3 uniformValue)
+    {
+        int uniformLocation = glGetUniformLocation(ID, uniformName.c_str());
+        if (uniformLocation != -1)
+        {
+            glUniformMatrix3fv(uniformLocation, 1, false, glm::value_ptr(uniformValue));
         }
         else
         {

@@ -68,12 +68,11 @@ src/main.o: src/main.cpp include/glad/glad.h include/KHR/khrplatform.h \
  include/glm/vector_relational.hpp include/glm/integer.hpp \
  include/glm/detail/func_integer.hpp include/glm/detail/func_integer.inl \
  include/glm/detail/func_integer_simd.inl \
- include/glm/detail/../simd/integer.h \
- include/glm/gtc/matrix_transform.hpp \
- include/glm/gtc/../gtc/constants.hpp \
- include/glm/gtc/../gtc/constants.inl \
- include/glm/gtc/matrix_transform.inl include/glm/gtc/type_ptr.hpp \
+ include/glm/detail/../simd/integer.h include/glm/gtc/type_ptr.hpp \
  include/glm/gtc/../gtc/quaternion.hpp \
+ include/glm/gtc/../gtc/../gtc/constants.hpp \
+ include/glm/gtc/../gtc/../gtc/constants.inl \
  include/glm/gtc/../gtc/quaternion.inl \
  include/glm/gtc/../gtc/quaternion_simd.inl include/glm/gtc/type_ptr.inl \
- include/stb_image.h
+ include/glm/gtc/matrix_transform.hpp \
+ include/glm/gtc/matrix_transform.inl include/stb_image.h
