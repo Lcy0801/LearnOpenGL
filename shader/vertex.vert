@@ -8,11 +8,11 @@ uniform mat4 view;
 uniform mat4 project;
 out vec3 fragPos;
 out vec3 fragNormal;
-
+out vec2 fragTextcoord;
 void main()
 {
    gl_Position = project*view*model*vec4(aPos.x, aPos.y, aPos.z, 1.0);
    fragPos = vec3(model*vec4(aPos,1));
    fragNormal = aNormal;
-   
+   fragTextcoord = aTextcoord;
 }

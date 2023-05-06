@@ -222,9 +222,40 @@ int main()
     glVertexAttribPointer(1, 3, GL_FLOAT, false, 8 * sizeof(GL_FLOAT), (void *)(3 * sizeof(GL_FLOAT)));
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, false, 8 * sizeof(GL_FLOAT), (void *)(6 * sizeof(GL_FLOAT)));
+    glEnableVertexAttribArray(2);
     // 纹理
+    auto loadTexture = [](unsigned int &texture, const char *imageFile, int TextureUnit)
+    {
+        // 纹理
+        glGenTextures(1, &texture);
+        glActiveTexture(TextureUnit);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        // 设置纹理环绕方式
+        glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        // 设置纹理过滤方式
+        glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        // 纹理贴图
+        int width, height, nChannels;
+        unsigned char *textureData = stbi_load(imageFile, &width, &height, &nChannels, 0);
+        if (textureData)
+        {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
+            glGenerateMipmap(GL_TEXTURE_2D);
+            // 释放贴图内存
+            stbi_image_free(textureData);
+        }
+        else
+        {
+            cout << imageFile << endl;
+            cout << "该纹理贴图载入失败!" << endl;
+        }
+    };
     unsigned int texture;
-    
+    loadTexture(texture, "D:/LearnOpenGL/src/texture0.png", GL_TEXTURE0);
+    shader.use();
+    shader.setUniformInt("texture0", 0);
     // 绑定默认vao
     glBindVertexArray(0);
     // 开启深度测试
@@ -306,11 +337,11 @@ int main()
         shader.use();
         shader.setUniformFloat("ambientStrength", 0.1);
         shader.setUniformVec3("lightPos", LIGHTPOS);
-        shader.setUniformVec3("objColor", vec3(1, 0.5, 0.31));
+        // shader.setUniformVec3("objColor", vec3(1, 0.5, 0.31));
         shader.setUniformVec3("lightColor", vec3(1, 1, 1));
         float timeValue = glfwGetTime();
         mat4 model_;
-        model_ = rotate(model_, timeValue, vec3(1, 0, 1));
+        model_ = rotate(model_, timeValue, vec3(1, 1, 1));
         shader.setUniformMatrix4("model", model_);
         shader.setUniformMatrix4("view", view);
         shader.setUniformMatrix4("project", project);

@@ -3,16 +3,18 @@
 out vec4 fragColor;
 uniform float ambientStrength;
 uniform float specularStrength;
-uniform vec3 objColor;
 uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform mat3 normalMatrix;
 uniform vec3 cameraPos;
+uniform sampler2D texture0;
 
 in vec3 fragPos;
 in vec3 fragNormal;
+in vec2 fragTextcoord;
 void main()
 {
+    vec3 objColor = vec3(texture(texture0,fragTextcoord));
     // 环境光
     vec3 ambient = ambientStrength*lightColor;
     vec3 ambientRes = ambient * objColor;
