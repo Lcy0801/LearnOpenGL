@@ -252,10 +252,10 @@ int main()
             cout << "该纹理贴图载入失败!" << endl;
         }
     };
-    unsigned int texture;
-    loadTexture(texture, "D:/LearnOpenGL/src/texture0.png", GL_TEXTURE0);
-    shader.use();
-    shader.setUniformInt("texture0", 0);
+    // unsigned int texture;
+    // loadTexture(texture, "D:/LearnOpenGL/src/texture0.png", GL_TEXTURE0);
+    // shader.use();
+    // shader.setUniformInt("texture0", 0);
     // 绑定默认vao
     glBindVertexArray(0);
     // 开启深度测试
@@ -335,23 +335,30 @@ int main()
         glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
         glBindVertexArray(vao);
         shader.use();
-        shader.setUniformFloat("ambientStrength", 0.1);
-        shader.setUniformVec3("lightPos", LIGHTPOS);
-        // shader.setUniformVec3("objColor", vec3(1, 0.5, 0.31));
-        shader.setUniformVec3("lightColor", vec3(1, 1, 1));
-        float timeValue = glfwGetTime();
+        // 设置光源的相关属性
+        float currentTime = glfwGetTime();
+        // 更具时间改变光源的颜色
+        vec3 lightColor = vec3(sin(currentTime * 2.0), sin(currentTime * 0.7), sin(currentTime * 1.3));
+        shader.setUniformVec3("light.lightColor", lightColor);
+        shader.setUniformVec3("light.specular", vec3(0.5, 0.5, 0.5));
+        shader.setUniformVec3("light.diffuse", vec3(1.0, 1.0, 1.0));
+        shader.setUniformVec3("light.ambient", vec3(0.2, 0.2, 0.2));
+        shader.setUniformVec3("light.lightPos", LIGHTPOS);
         mat4 model_;
-        model_ = rotate(model_, timeValue, vec3(1, 1, 1));
+        model_ = rotate(model_, currentTime, vec3(1, 1, 1));
         shader.setUniformMatrix4("model", model_);
         shader.setUniformMatrix4("view", view);
         shader.setUniformMatrix4("project", project);
         // 设置片段着色器中的法线矩阵
         shader.setUniformMatrix3("normalMatrix", transpose(inverse(mat3(model_))));
         shader.setUniformVec3("cameraPos", cameraPos);
-        shader.setUniformFloat("specularStrength", 0.5);
+        // 设置材质
+        shader.setUniformVec3("material.ambient", vec3(1.0f, 0.5f, 0.31f));
+        shader.setUniformVec3("material.diffuse", vec3(1.0f, 0.5f, 0.31f));
+        shader.setUniformVec3("material.specular", vec3(0.5f, 0.5f, 0.5f));
+        shader.setUniformInt("material.shininess", 9);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glfwSwapBuffers(window);
-        float currentTime = glfwGetTime();
         deltaTime = currentTime - lastTime;
         lastTime = currentTime;
         glfwPollEvents();
