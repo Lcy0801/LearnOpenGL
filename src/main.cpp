@@ -355,10 +355,16 @@ int main()
         shader.setUniformVec3("light.specular", vec3(0.5, 0.5, 0.5));
         shader.setUniformVec3("light.diffuse", vec3(1.0, 1.0, 1.0));
         shader.setUniformVec3("light.ambient", vec3(0.2, 0.2, 0.2));
-        // shader.setUniformVec3("light.lightPos", LIGHTPOS);
-        shader.setUniformVec3("light.lightDir", vec3(-0.2, -1.0, -0.3));
+        // 聚光：光源位置、方向、裁光角
+        shader.setUniformVec3("light.lightPos", LIGHTPOS);
+        shader.setUniformVec3("light.lightDir",vec3(-1,-1.0,-1));
+        shader.setUniformFloat("light.cutOff", 15);
+        // 设置光源随距离的衰减系数
+        shader.setUniformFloat("light.constant", 1.0);
+        shader.setUniformFloat("light.linear", 0.22);
+        shader.setUniformFloat("light.quadratic", 0.20);
         // 设置材质
-        shader.setUniformVec3("material.ambient", vec3(1.0f, 0.5f, 0.31f));
+        shader.setUniformVec3("material.ambient", vec3(1.0, 0.5, 0.31));
         // shader.setUniformVec3("material.diffuse", vec3(1.0f, 0.5f, 0.31f));
         // 漫反射贴图
         shader.setUniformInt("material.diffuseMap", 0);
