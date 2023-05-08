@@ -355,10 +355,11 @@ int main()
         shader.setUniformVec3("light.specular", vec3(0.5, 0.5, 0.5));
         shader.setUniformVec3("light.diffuse", vec3(1.0, 1.0, 1.0));
         shader.setUniformVec3("light.ambient", vec3(0.2, 0.2, 0.2));
-        // 聚光：光源位置、方向、裁光角
-        shader.setUniformVec3("light.lightPos", LIGHTPOS);
-        shader.setUniformVec3("light.lightDir",vec3(-1,-1.0,-1));
-        shader.setUniformFloat("light.cutOff", 15);
+        // 聚光：光源位置、方向、光切角、外广切角
+        shader.setUniformVec3("light.lightPos", cameraPos);
+        shader.setUniformVec3("light.lightDir",cameraFront);
+        shader.setUniformFloat("light.cutOff", cos(radians(5.0)));
+        shader.setUniformFloat("light.outerCutOff", cos(radians(6.0)));
         // 设置光源随距离的衰减系数
         shader.setUniformFloat("light.constant", 1.0);
         shader.setUniformFloat("light.linear", 0.22);
