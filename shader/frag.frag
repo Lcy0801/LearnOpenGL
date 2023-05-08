@@ -16,7 +16,10 @@ struct Light
     vec3 diffuse;
     vec3 specular;
     vec3 lightColor;
+    // 点光源
     vec3 lightPos;
+    // 平行光
+    vec3 lightDir;
 };
 
 out vec4 fragColor;
@@ -35,8 +38,10 @@ void main()
     // 环境光
     vec3 ambientRes = light.ambient*light.lightColor*material.ambient;
     // 漫反射光照
-    float r = distance(light.lightPos,fragPos);
-    vec3 lightDir = normalize(light.lightPos-fragPos);
+    // float r = distance(light.lightPos,fragPos);
+    float r =1;
+    // vec3 lightDir = normalize(light.lightPos-fragPos);
+    vec3 lightDir = normalize(-light.lightDir);
     vec3 fragNormalW = normalize(normalMatrix * fragNormal);
     vec3 diffuseRes = light.lightColor*light.diffuse/pow(r,2)*max(dot(lightDir,fragNormalW),0)*vec3(texture(material.diffuseMap,fragTextcoord));
     // 镜面反射分量

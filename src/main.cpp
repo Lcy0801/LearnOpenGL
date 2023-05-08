@@ -208,6 +208,17 @@ int main()
         0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
         -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
         -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f};
+    vec3 cubePositions[] = {
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(2.0f, 5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f, 3.0f, -7.5f),
+        glm::vec3(1.3f, -2.0f, -2.5f),
+        glm::vec3(1.5f, 2.0f, -2.5f),
+        glm::vec3(1.5f, 0.2f, -1.5f),
+        glm::vec3(-1.3f, 1.0f, -1.5f)};
     // 顶点数组对象
     unsigned int vao;
     glGenVertexArrays(1, &vao);
@@ -344,15 +355,8 @@ int main()
         shader.setUniformVec3("light.specular", vec3(0.5, 0.5, 0.5));
         shader.setUniformVec3("light.diffuse", vec3(1.0, 1.0, 1.0));
         shader.setUniformVec3("light.ambient", vec3(0.2, 0.2, 0.2));
-        shader.setUniformVec3("light.lightPos", LIGHTPOS);
-        mat4 model_;
-        model_ = rotate(model_, currentTime, vec3(1, 1, 1));
-        shader.setUniformMatrix4("model", model_);
-        shader.setUniformMatrix4("view", view);
-        shader.setUniformMatrix4("project", project);
-        // 设置片段着色器中的法线矩阵
-        shader.setUniformMatrix3("normalMatrix", transpose(inverse(mat3(model_))));
-        shader.setUniformVec3("cameraPos", cameraPos);
+        // shader.setUniformVec3("light.lightPos", LIGHTPOS);
+        shader.setUniformVec3("light.lightDir", vec3(-0.2, -1.0, -0.3));
         // 设置材质
         shader.setUniformVec3("material.ambient", vec3(1.0f, 0.5f, 0.31f));
         // shader.setUniformVec3("material.diffuse", vec3(1.0f, 0.5f, 0.31f));
@@ -363,7 +367,20 @@ int main()
         shader.setUniformInt("material.specularMap", 1);
         // 反光度:镜面反射的衰减系数
         shader.setUniformInt("material.shininess", 9);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        // 设置相机的位置
+        shader.setUniformVec3("cameraPos", cameraPos);
+        for (int i = 0; i < 10;i++)
+        {
+            mat4 model_;
+            model_ = translate(model_, cubePositions[i]);
+            model_ = rotate(model_, currentTime, vec3(1, 1, 1));
+            shader.setUniformMatrix4("model", model_);
+            shader.setUniformMatrix4("view", view);
+            shader.setUniformMatrix4("project", project);
+            // 设置片段着色器中的法线矩阵
+            shader.setUniformMatrix3("normalMatrix", transpose(inverse(mat3(model_))));
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
         glfwSwapBuffers(window);
         deltaTime = currentTime - lastTime;
         lastTime = currentTime;
