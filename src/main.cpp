@@ -252,10 +252,11 @@ int main()
             cout << "该纹理贴图载入失败!" << endl;
         }
     };
-    // unsigned int texture;
-    // loadTexture(texture, "D:/LearnOpenGL/src/texture0.png", GL_TEXTURE0);
-    // shader.use();
-    // shader.setUniformInt("texture0", 0);
+    // 载入漫反射率贴图和镜面反射率贴图
+    unsigned int texture0;
+    loadTexture(texture0, "D:/LearnOpenGL/src/diffuseMap.png", GL_TEXTURE0);
+    unsigned int texture1;
+    loadTexture(texture1, "D:/LearnOpenGL/src/specularMap.png", GL_TEXTURE1);
     // 绑定默认vao
     glBindVertexArray(0);
     // 开启深度测试
@@ -339,7 +340,7 @@ int main()
         float currentTime = glfwGetTime();
         // 更具时间改变光源的颜色
         vec3 lightColor = vec3(sin(currentTime * 2.0), sin(currentTime * 0.7), sin(currentTime * 1.3));
-        shader.setUniformVec3("light.lightColor", lightColor);
+        shader.setUniformVec3("light.lightColor", vec3(1));
         shader.setUniformVec3("light.specular", vec3(0.5, 0.5, 0.5));
         shader.setUniformVec3("light.diffuse", vec3(1.0, 1.0, 1.0));
         shader.setUniformVec3("light.ambient", vec3(0.2, 0.2, 0.2));
@@ -354,8 +355,13 @@ int main()
         shader.setUniformVec3("cameraPos", cameraPos);
         // 设置材质
         shader.setUniformVec3("material.ambient", vec3(1.0f, 0.5f, 0.31f));
-        shader.setUniformVec3("material.diffuse", vec3(1.0f, 0.5f, 0.31f));
-        shader.setUniformVec3("material.specular", vec3(0.5f, 0.5f, 0.5f));
+        // shader.setUniformVec3("material.diffuse", vec3(1.0f, 0.5f, 0.31f));
+        // 漫反射贴图
+        shader.setUniformInt("material.diffuseMap", 0);
+        // shader.setUniformVec3("material.specular", vec3(0.5f, 0.5f, 0.5f));
+        // 镜面反射贴图
+        shader.setUniformInt("material.specularMap", 1);
+        // 反光度:镜面反射的衰减系数
         shader.setUniformInt("material.shininess", 9);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glfwSwapBuffers(window);
