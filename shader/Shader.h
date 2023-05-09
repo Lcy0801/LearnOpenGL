@@ -8,6 +8,38 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+struct DirLight
+{
+    glm::vec3 direction;
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+};
+
+struct PoiLight
+{
+    glm::vec3 position;
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+    float constant;
+    float linear;
+    float quadratic;
+    float cutOff = 0;
+    float outerCutOff;
+    glm::vec3 direction;
+};
+
+struct Material
+{
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    int diffuseMap = -1;
+    glm::vec3 specular;
+    int specularMap = -1;
+    int shininess;
+};
+
 class Shader
 {
 public:
@@ -121,7 +153,7 @@ public:
             std::cout << uniformName << "不存在!" << std::endl;
         }
     }
-    void setUniformVec3(const std::string &uniformName, glm::vec3 uniformValue)
+    void setUniformVec3(const std::string &uniformName, const glm::vec3 &uniformValue)
     {
         int uniformLocation = glGetUniformLocation(ID, uniformName.c_str());
         if (uniformLocation != -1)
@@ -133,7 +165,7 @@ public:
             std::cout << uniformName << "不存在!" << std::endl;
         }
     }
-    void setUniformMatrix4(const std::string &uniformName, glm::mat4 uniformValue)
+    void setUniformMatrix4(const std::string &uniformName, const glm::mat4 &uniformValue)
     {
         int uniformLocation = glGetUniformLocation(ID, uniformName.c_str());
         if (uniformLocation != -1)
@@ -145,7 +177,7 @@ public:
             std::cout << uniformName << "不存在!" << std::endl;
         }
     }
-    void setUniformMatrix3(const std::string &uniformName, glm::mat3 uniformValue)
+    void setUniformMatrix3(const std::string &uniformName, const glm::mat3 &uniformValue)
     {
         int uniformLocation = glGetUniformLocation(ID, uniformName.c_str());
         if (uniformLocation != -1)
@@ -156,6 +188,86 @@ public:
         {
             std::cout << uniformName << "不存在!" << std::endl;
         }
+    }
+
+    void setUniformDirLight(const std::string &uniformName, const DirLight &dirLight)
+    {
+        std::string direction;
+        direction = uniformName + ".direction";
+        setUniformVec3(direction, dirLight.direction);
+        std::string ambient;
+        ambient = uniformName + ".ambient";
+        setUniformVec3(ambient, dirLight.ambient);
+        std::string diffuse;
+        diffuse = uniformName + ".diffuse";
+        setUniformVec3(diffuse, dirLight.diffuse);
+        std::string specular;
+        specular = uniformName + ".specular";
+        setUniformVec3(specular, dirLight.specular);
+    }
+
+    void setUniformPoiLight(const std::string &uniformName, const PoiLight &poiLight)
+    {
+        std::string position;
+        position = uniformName + ".position";
+        setUniformVec3(position, poiLight.position);
+        std::string ambient;
+        ambient = uniformName + ".ambient";
+        setUniformVec3(ambient, poiLight.ambient);
+        std::string diffuse;
+        diffuse = uniformName + ".diffuse";
+        setUniformVec3(diffuse, poiLight.diffuse);
+        std::string specular;
+        specular = uniformName + ".specular";
+        setUniformVec3(specular, poiLight.specular);
+        std::string constant;
+        constant = uniformName + ".constant";
+        setUniformFloat(constant, poiLight.constant);
+        std::string linear;
+        linear = uniformName + ".linear";
+        setUniformFloat(linear, poiLight.linear);
+        std::string quadratic;
+        quadratic = uniformName + ".quadratic";
+        setUniformFloat(quadratic, poiLight.quadratic);
+        std::string cutOff;
+        cutOff = uniformName + ".cutOff";
+        setUniformFloat(cutOff, poiLight.cutOff);
+        if (poiLight.cutOff != 0)
+        {
+            std::string direction;
+            direction = uniformName + ".direction";
+            setUniformVec3(direction, poiLight.direction);
+            std::string outerCutOff;
+            outerCutOff = uniformName + ".outerCutOff";
+            setUniformFloat(outerCutOff, poiLight.outerCutOff);
+        }
+    }
+    void setUniformMaterail(const std::string &uniformName, const Material &material)
+    {
+        std::string ambient = uniformName + ".ambient";
+        setUniformVec3(ambient, material.ambient);
+        if(material.diffuseMap!=-1)
+        {
+            std::string diffuseMap = uniformName + ".diffuseMap";
+            setUniformInt(diffuseMap, material.diffuseMap);
+        }
+        else
+        {
+            std::string diffuse = uniformName + ".diffuse";
+            setUniformVec3(diffuse, material.diffuse);
+        }
+        if(material.specularMap!=-1)
+        {
+            std::string specularMap = uniformName+".specularMap";
+            setUniformInt(specularMap, material.specularMap);
+        }
+        else
+        {
+            std::string specualr = uniformName+".specular";
+            setUniformVec3(specualr, material.specular);
+        }
+        std::string shininess = uniformName + ".shininess";
+        setUniformInt(shininess, material.shininess);
     }
     void destroy()
     {

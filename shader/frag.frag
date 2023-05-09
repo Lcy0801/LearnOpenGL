@@ -15,11 +15,10 @@ struct Light
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
-    vec3 lightColor;
     // 点光源
-    vec3 lightPos;
+    vec3 position;
     // 平行光
-    vec3 lightDir;
+    vec3 direction;
     // 引入点光源的衰减系数
     float constant;
     float linear;
@@ -44,23 +43,23 @@ uniform vec3 cameraPos;
 void main()
 {
     float theta;
-    theta = dot(normalize(fragPos-light.lightPos),normalize(light.lightDir));
+    theta = dot(normalize(fragPos-light.position),normalize(light.direction));
     float intensity = (theta-light.outerCutOff)/(light.cutOff-light.outerCutOff);
     intensity = clamp(intensity,0,1);
     // 环境光
-    vec3 ambientRes = light.ambient*light.lightColor*material.ambient;
+    vec3 ambientRes = light.ambient*material.ambient;
     // 漫反射光照
-    float r = distance(light.lightPos,fragPos);
+    float r = distance(light.position,fragPos);
     // 计算衰减后的光强
     float attenuation = 1/(1+light.constant+light.linear*r+light.quadratic*pow(r,2));
-    vec3 lightDir = normalize(light.lightPos-fragPos);
+    vec3 lightDir = normalize(light.position-fragPos);
     vec3 fragNormalW = normalize(normalMatrix * fragNormal);
-    vec3 diffuseRes = light.lightColor*light.diffuse*attenuation*max(dot(lightDir,fragNormalW),0)*vec3(texture(material.diffuseMap,fragTextcoord));
+    vec3 diffuseRes = light.diffuse*attenuation*max(dot(lightDir,fragNormalW),0)*vec3(texture(material.diffuseMap,fragTextcoord));
     // 镜面反射分量
     vec3 viewDir = normalize(cameraPos-fragPos);
     // 计算半程向量
     vec3 h = normalize(viewDir+ lightDir);
-    vec3 specularRes = light.lightColor*light.specular*attenuation*vec3(texture(material.specularMap,fragTextcoord))*pow(max(dot(h,fragNormalW),0),material.shininess);
+    vec3 specularRes = light.specular*attenuation*vec3(texture(material.specularMap,fragTextcoord))*pow(max(dot(h,fragNormalW),0),material.shininess);
     // 分量叠加
     fragColor =vec4(ambientRes+intensity*diffuseRes+intensity*specularRes,1); 
 }

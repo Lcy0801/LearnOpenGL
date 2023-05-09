@@ -25,7 +25,8 @@ using namespace glm;
 // 球形光源的半径大小
 #define RAIDUS 1
 #define PI 3.1415926
-#define LIGHTPOS vec3(1, 1, 1)
+// 点光源的个数
+#define NR_POINT_LIGHTS 4
 
 // 光源位置
 
@@ -165,7 +166,7 @@ int main()
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_back);
     // 绘制投光物
-    Shader shader("../shader/vertex.vert", "../shader/frag.frag");
+    Shader shader("../shader/vertex.vert", "../shader/multipleLight.frag");
     float vertices[] = {
         -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
         0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
@@ -277,7 +278,13 @@ int main()
     // glCullFace(GL_BACK);
     // 鼠标输入相关操作
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    // 绘制球形光源
+    // 绘制点光源
+    // 四个点光源的位置
+    vec3 pointlightPositions[] = {
+        vec3(0.7, 0.2, 2.0),
+        vec3(2.3, -3.3, -4.0),
+        vec3(-4.0, 2.0, -12.0),
+        vec3(0.0, 0.0, -3.0)};
     // 计算球面顶点
     vector<float> sphereVertices;
     float dxAngle = 2 * PI / X_SEGMENTS;
@@ -334,49 +341,77 @@ int main()
         processInput(window);
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        mat4 model, view, project;
-        model = translate(model, LIGHTPOS);
-        model = scale(model, vec3(0.1));
+        mat4 view, project;
         view = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         project = perspective(fov, (float)screenWidth / screenHeight, 0.1f, 100.0f);
-        glBindVertexArray(lightVao);
         lightShader.use();
-        lightShader.setUniformMatrix4("model", model);
-        lightShader.setUniformMatrix4("view", view);
-        lightShader.setUniformMatrix4("project", project);
-        glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(lightVao);
+        // 绘制点光源
+        for (int i = 0; i < 4;i++)
+        {
+            mat4 model;
+            model = translate(model, pointlightPositions[i]);
+            model = scale(model, vec3(0.1));
+            lightShader.setUniformMatrix4("model", model);
+            lightShader.setUniformMatrix4("view", view);
+            lightShader.setUniformMatrix4("project", project);
+            glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
+        }
+        // 绘制物体
         glBindVertexArray(vao);
         shader.use();
         // 设置光源的相关属性
         float currentTime = glfwGetTime();
-        // 更具时间改变光源的颜色
-        vec3 lightColor = vec3(sin(currentTime * 2.0), sin(currentTime * 0.7), sin(currentTime * 1.3));
-        shader.setUniformVec3("light.lightColor", vec3(1));
-        shader.setUniformVec3("light.specular", vec3(0.5, 0.5, 0.5));
-        shader.setUniformVec3("light.diffuse", vec3(1.0, 1.0, 1.0));
-        shader.setUniformVec3("light.ambient", vec3(0.2, 0.2, 0.2));
-        // 聚光：光源位置、方向、光切角、外广切角
-        shader.setUniformVec3("light.lightPos", cameraPos);
-        shader.setUniformVec3("light.lightDir",cameraFront);
-        shader.setUniformFloat("light.cutOff", cos(radians(5.0)));
-        shader.setUniformFloat("light.outerCutOff", cos(radians(6.0)));
+        /****初始化聚束光源******/
+        PoiLight bunchedLight;
+        bunchedLight.position = cameraPos;
+        bunchedLight.specular = vec3(0.5, 0.5, 0.5);
+        bunchedLight.diffuse = vec3(1.0, 1.0, 1.0);
+        bunchedLight.ambient = vec3(0.02, 0.02, 0.02);
         // 设置光源随距离的衰减系数
-        shader.setUniformFloat("light.constant", 1.0);
-        shader.setUniformFloat("light.linear", 0.22);
-        shader.setUniformFloat("light.quadratic", 0.20);
+        bunchedLight.constant = 1.0;
+        bunchedLight.linear = 0.22;
+        bunchedLight.quadratic = 0.20;
+        // 聚光：光源位置、方向、光切角、外广切角
+        bunchedLight.direction = cameraFront;
+        bunchedLight.cutOff = cos(radians(5.0));
+        bunchedLight.outerCutOff = cos(radians(6.0));
+        shader.setUniformPoiLight("bunchedLight", bunchedLight);
+        /****初始化定向光源******/
+        DirLight dirLight;
+        dirLight.direction = vec3(-0.2,-1.0, -0.3);
+        dirLight.ambient = vec3(0.005, 0.005, 0.005);
+        dirLight.diffuse = vec3(0.4, 0.4, 0.4);
+        dirLight.specular = vec3(0.5, 0.5, 0.5);
+        shader.setUniformDirLight("dirLight", dirLight);
+        /****初始化点光源******/
+        for (int i = 0; i < NR_POINT_LIGHTS;i++)
+        {
+            PoiLight poiLight;
+            poiLight.position = pointlightPositions[i];
+            poiLight.ambient = vec3(0.005, 0.005, 0.005);
+            poiLight.diffuse = vec3(0.8, 0.8, 0.8);
+            poiLight.specular = vec3(1.0,1.0,1.0);
+            poiLight.constant = 1.0;
+            poiLight.linear = 0.09;
+            poiLight.quadratic = 0.032;
+            char uniformName[1024];
+            sprintf(uniformName, "poiLights[%d]", i);
+            shader.setUniformPoiLight(uniformName, poiLight);
+        }
         // 设置材质
-        shader.setUniformVec3("material.ambient", vec3(1.0, 0.5, 0.31));
-        // shader.setUniformVec3("material.diffuse", vec3(1.0f, 0.5f, 0.31f));
+        Material material;
+        material.ambient = vec3(1.0, 0.5, 0.31);
         // 漫反射贴图
-        shader.setUniformInt("material.diffuseMap", 0);
-        // shader.setUniformVec3("material.specular", vec3(0.5f, 0.5f, 0.5f));
+        material.diffuseMap = 0;
         // 镜面反射贴图
-        shader.setUniformInt("material.specularMap", 1);
+        material.specularMap = 1;
         // 反光度:镜面反射的衰减系数
-        shader.setUniformInt("material.shininess", 9);
+        material.shininess = 3;
+        shader.setUniformMaterail("material", material);
         // 设置相机的位置
         shader.setUniformVec3("cameraPos", cameraPos);
-        for (int i = 0; i < 10;i++)
+        for (int i = 0; i < 10; i++)
         {
             mat4 model_;
             model_ = translate(model_, cubePositions[i]);
@@ -393,6 +428,7 @@ int main()
         lastTime = currentTime;
         glfwPollEvents();
     }
+
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
     shader.destroy();
