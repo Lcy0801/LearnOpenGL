@@ -269,13 +269,35 @@ int main()
     loadTexture(texture0, "D:/LearnOpenGL/src/diffuseMap.png", GL_TEXTURE0);
     unsigned int texture1;
     loadTexture(texture1, "D:/LearnOpenGL/src/specularMap.png", GL_TEXTURE1);
+    // 载入照片贴图
+    unsigned int texture2;
+    loadTexture(texture2, "D:/LearnOpenGL/textures/0.png", GL_TEXTURE2);
+    unsigned int texture3;
+    loadTexture(texture3, "D:/LearnOpenGL/textures/1.png", GL_TEXTURE3);
+    unsigned int texture4;
+    loadTexture(texture4, "D:/LearnOpenGL/textures/2.png", GL_TEXTURE4);
+    unsigned int texture5;
+    loadTexture(texture5, "D:/LearnOpenGL/textures/3.png", GL_TEXTURE5);
+    unsigned int texture6;
+    loadTexture(texture6, "D:/LearnOpenGL/textures/4.png", GL_TEXTURE6);
+    unsigned int texture7;
+    loadTexture(texture7, "D:/LearnOpenGL/textures/5.png", GL_TEXTURE7);
+    unsigned int texture8;
+    loadTexture(texture8, "D:/LearnOpenGL/textures/6.png", GL_TEXTURE8);
+    unsigned int texture9;
+    loadTexture(texture9, "D:/LearnOpenGL/textures/7.png", GL_TEXTURE9);
+    unsigned int texture10;
+    loadTexture(texture10, "D:/LearnOpenGL/textures/8.png", GL_TEXTURE10);
+    unsigned int texture11;
+    loadTexture(texture11, "D:/LearnOpenGL/textures/9.png", GL_TEXTURE11);
+    unsigned int texture12;
+    loadTexture(texture12, "D:/LearnOpenGL/textures/10.png", GL_TEXTURE12);
+    unsigned int texture13;
+    loadTexture(texture13, "D:/LearnOpenGL/textures/11.png", GL_TEXTURE13);
     // 绑定默认vao
     glBindVertexArray(0);
     // 开启深度测试
     glEnable(GL_DEPTH_TEST);
-    // 开启剔除面
-    // glEnable(GL_CULL_FACE);
-    // glCullFace(GL_BACK);
     // 鼠标输入相关操作
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     // 绘制点光源
@@ -347,7 +369,7 @@ int main()
         lightShader.use();
         glBindVertexArray(lightVao);
         // 绘制点光源
-        for (int i = 0; i < 4;i++)
+        for (int i = 0; i < 4; i++)
         {
             mat4 model;
             model = translate(model, pointlightPositions[i]);
@@ -374,24 +396,24 @@ int main()
         bunchedLight.quadratic = 0.20;
         // 聚光：光源位置、方向、光切角、外广切角
         bunchedLight.direction = cameraFront;
-        bunchedLight.cutOff = cos(radians(5.0));
-        bunchedLight.outerCutOff = cos(radians(6.0));
+        bunchedLight.cutOff = cos(radians(10.0));
+        bunchedLight.outerCutOff = cos(radians(12.0));
         shader.setUniformPoiLight("bunchedLight", bunchedLight);
         /****初始化定向光源******/
         DirLight dirLight;
-        dirLight.direction = vec3(-0.2,-1.0, -0.3);
+        dirLight.direction = vec3(-0.2, -1.0, -0.3);
         dirLight.ambient = vec3(0.005, 0.005, 0.005);
         dirLight.diffuse = vec3(0.4, 0.4, 0.4);
         dirLight.specular = vec3(0.5, 0.5, 0.5);
         shader.setUniformDirLight("dirLight", dirLight);
         /****初始化点光源******/
-        for (int i = 0; i < NR_POINT_LIGHTS;i++)
+        for (int i = 0; i < NR_POINT_LIGHTS; i++)
         {
             PoiLight poiLight;
             poiLight.position = pointlightPositions[i];
             poiLight.ambient = vec3(0.005, 0.005, 0.005);
             poiLight.diffuse = vec3(0.8, 0.8, 0.8);
-            poiLight.specular = vec3(1.0,1.0,1.0);
+            poiLight.specular = vec3(1.0, 1.0, 1.0);
             poiLight.constant = 1.0;
             poiLight.linear = 0.09;
             poiLight.quadratic = 0.032;
@@ -411,17 +433,24 @@ int main()
         shader.setUniformMaterail("material", material);
         // 设置相机的位置
         shader.setUniformVec3("cameraPos", cameraPos);
+        float mixPercent = sin(currentTime);
+        shader.setUniformFloat("mixPercent", mixPercent);
         for (int i = 0; i < 10; i++)
         {
             mat4 model_;
             model_ = translate(model_, cubePositions[i]);
-            model_ = rotate(model_, currentTime, vec3(1, 1, 1));
+            model_ = rotate(model_, currentTime+radians(i*10.0f), vec3(1, 1, 1));
             shader.setUniformMatrix4("model", model_);
             shader.setUniformMatrix4("view", view);
             shader.setUniformMatrix4("project", project);
             // 设置片段着色器中的法线矩阵
             shader.setUniformMatrix3("normalMatrix", transpose(inverse(mat3(model_))));
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            for (int j = 0; j < 6; j++)
+            {
+                shader.setUniformInt("texture0", 2 * (j + 1));
+                shader.setUniformInt("texture1", 2 * (j + 1) + 1);
+                glDrawArrays(GL_TRIANGLES, j * 6, 6);
+            }
         }
         glfwSwapBuffers(window);
         deltaTime = currentTime - lastTime;

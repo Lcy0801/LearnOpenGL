@@ -49,6 +49,10 @@ uniform PointLight bunchedLight;
 uniform vec3 cameraPos;
 // 法线矩阵
 uniform mat3 normalMatrix;
+// 纹理贴图
+uniform sampler2D texture0;
+uniform sampler2D texture1;
+uniform float mixPercent;
 
 in vec3 fragPos;
 in vec2 fragTextcoord;
@@ -61,7 +65,8 @@ vec3 calcDirLight(DirLight dirLight,vec3 fragNormalW,vec3 viewDir)
     // 环境光
     vec3 ambientRes = dirLight.ambient*material.ambient;
     // 漫反射光
-    vec3 diffuseRes = dirLight.diffuse*max(dot(normalize(-dirLight.direction),fragNormalW),0)*vec3(texture(material.diffuseMap,fragTextcoord));
+    vec4 diffuse=mix(mix(texture(texture0,fragTextcoord),texture(texture1,fragTextcoord),mixPercent),texture(material.diffuseMap,fragTextcoord),0.1);
+    vec3 diffuseRes = dirLight.diffuse*max(dot(normalize(-dirLight.direction),fragNormalW),0)*vec3(diffuse);
     // 镜面反射
     vec3 h = normalize(viewDir-dirLight.direction);
     vec3 specularRes = dirLight.specular*vec3(texture(material.specularMap,fragTextcoord))*pow(max(dot(h,fragNormalW),0),material.shininess);
@@ -80,8 +85,9 @@ vec3 calPointLight(PointLight poiLight,vec3 fragNormalW,vec3 viewDir)
     float r = distance(poiLight.position,fragPos);
     float attenuation = 1/(1+poiLight.constant+poiLight.linear*r+poiLight.quadratic*pow(r,2));
     // 漫反射
+    vec4 diffuse=mix(mix(texture(texture0,fragTextcoord),texture(texture1,fragTextcoord),mixPercent),texture(material.diffuseMap,fragTextcoord),0.1);
     vec3 lightDir = normalize(poiLight.position - fragPos);
-    vec3 diffuseRes = poiLight.diffuse*attenuation*max(dot(lightDir,fragNormalW),0)*vec3(texture(material.diffuseMap,fragTextcoord));
+    vec3 diffuseRes = poiLight.diffuse*attenuation*max(dot(lightDir,fragNormalW),0)*vec3(diffuse);
     // 镜面反射
     vec3 h = normalize(viewDir+lightDir);
     vec3 specularRes = poiLight.specular*attenuation*vec3(texture(material.specularMap,fragTextcoord))*pow(max(dot(h,fragNormalW),0),material.shininess);
