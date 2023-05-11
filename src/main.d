@@ -48,15 +48,16 @@ src/main.o: src/main.cpp include/glad/glad.h include/KHR/khrplatform.h \
  include/glm/detail/../detail/func_vector_relational_simd.inl \
  include/glm/detail/../detail/_vectorize.hpp \
  include/glm/detail/../detail/func_exponential_simd.inl \
- d:\learnopengl\include\glm\simd\exponential.h \
+ D:/LearnOpenGL/include/glm/simd/exponential.h \
  include/glm/detail/../detail/func_common.hpp \
  include/glm/detail/../detail/_fixes.hpp \
  include/glm/detail/../detail/func_common.inl \
  include/glm/detail/../detail/func_common_simd.inl \
+ D:/LearnOpenGL/include/glm/simd/common.h \
  include/glm/detail/../detail/func_geometric_simd.inl \
- d:\learnopengl\include\glm\simd\geometric.h \
- d:\learnopengl\include\glm\simd\common.h \
- include/glm/detail/func_matrix_simd.inl include/glm/trigonometric.hpp \
+ D:/LearnOpenGL/include/glm/simd/geometric.h \
+ include/glm/detail/func_matrix_simd.inl \
+ include/glm/detail/../simd/matrix.h include/glm/trigonometric.hpp \
  include/glm/detail/func_trigonometric.hpp \
  include/glm/detail/func_trigonometric.inl \
  include/glm/detail/func_trigonometric_simd.inl \
