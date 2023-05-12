@@ -75,5 +75,6 @@ src/main.o: src/main.cpp include/glad/glad.h include/KHR/khrplatform.h \
  include/glm/gtc/../gtc/../gtc/constants.inl \
  include/glm/gtc/../gtc/quaternion.inl \
  include/glm/gtc/../gtc/quaternion_simd.inl include/glm/gtc/type_ptr.inl \
- include/glm/gtc/matrix_transform.hpp \
+ src/Model.h include/assimp/Importer.hpp include/assimp/scene.h \
+ include/assimp/postprocess.h include/glm/gtc/matrix_transform.hpp \
  include/glm/gtc/matrix_transform.inl include/stb_image.h

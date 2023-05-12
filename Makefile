@@ -21,7 +21,7 @@ OUTPUT	:= output
 SRC		:= src
 
 # define include directory
-INCLUDE	:= include shader
+INCLUDE	:= include shader src
 
 # define lib directory
 LIB		:= lib
