@@ -93,7 +93,7 @@ public:
             std::string samplerName;
             if (texture.type == DIFFUSE)
             {
-                samplerName = "diffuseMap_" + std::to_string(diffsueNr);
+                samplerName = "material.diffuseMap_" + std::to_string(diffsueNr);
                 diffsueNr++;
             }
             else if (texture.type == SPECULAR)
@@ -151,7 +151,6 @@ private:
             glm::vec3 position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
             glm::vec3 normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
             glm::vec2 textcoord;
-            // std::cout << position.x << "\t" << position.y << "\t" << position.z << "\t" << std::endl;
             if (mesh->mTextureCoords[0])
             {
                 textcoord = glm::vec2(mesh->mTextureCoords[0][i].x,mesh->mTextureCoords[0][i].y);
@@ -178,8 +177,8 @@ private:
             aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
             std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, DIFFUSE);
             textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-            // std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, SPECULAR);
-            // textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+            std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, SPECULAR);
+            textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
         }
         return Mesh(vertices, indices, textures);
     }

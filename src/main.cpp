@@ -120,7 +120,7 @@ int main()
     // 绘制点光源
     Sphere pointLightSphere(X_SEGMENTS, Y_SEGMENTS, RAIDUS);
     // 四个点光源的位置
-    vec3 pointlightPositions[] = {vec3(0.7, 0.2, 2.0), vec3(2.3, -3.3, -4.0), vec3(-4.0, 2.0, -12.0), vec3(0.0, 0.0, -3.0)};
+    vec3 pointlightPositions[] = {vec3(3, 0, 3), vec3(-3, 0, -3), vec3(3, 12, -3), vec3(-3, 12, 3)};
     // 光源着色器
     Shader lightShader("D:/LearnOpenGL/shader/light.vert", "D:/LearnOpenGL/shader/light.frag");
     // 开启深度测试
@@ -155,76 +155,54 @@ int main()
         shader.setUniformMatrix4("model", model);
         shader.setUniformMatrix4("view", view);
         shader.setUniformMatrix4("project", project);
-        myModel.Draw(shader);
-        // // 设置光源的相关属性
-        // /****初始化聚束光源******/
-        // PoiLight bunchedLight;
-        // bunchedLight.position = cameraPos;
-        // bunchedLight.specular = vec3(0.5, 0.5, 0.5);
-        // bunchedLight.diffuse = vec3(1.0, 1.0, 1.0);
-        // bunchedLight.ambient = vec3(0.02, 0.02, 0.02);
-        // // 设置光源随距离的衰减系数
-        // bunchedLight.constant = 1.0;
-        // bunchedLight.linear = 0.22;
-        // bunchedLight.quadratic = 0.20;
-        // // 聚光：光源位置、方向、光切角、外广切角
-        // bunchedLight.direction = cameraFront;
-        // bunchedLight.cutOff = cos(radians(10.0));
-        // bunchedLight.outerCutOff = cos(radians(12.0));
-        // shader.setUniformPoiLight("bunchedLight", bunchedLight);
+        // 设置光源的相关属性
+        /****初始化聚束光源******/
+        PoiLight bunchedLight;
+        bunchedLight.position = camera.m_cameraPos;
+        bunchedLight.specular = vec3(0.5, 0.5, 0.5);
+        bunchedLight.diffuse = vec3(1.0, 1.0, 1.0);
+        bunchedLight.ambient = vec3(0.002, 0.002, 0.002);
+        // 设置光源随距离的衰减系数
+        bunchedLight.constant = 1.0;
+        bunchedLight.linear = 0.09;
+        bunchedLight.quadratic = 0.032;
+        // 聚光：光源位置、方向、光切角、外广切角
+        bunchedLight.direction = camera.m_cameraFront;
+        bunchedLight.cutOff = cos(radians(10.0));
+        bunchedLight.outerCutOff = cos(radians(12.0));
+        shader.setUniformPoiLight("bunchedLight", bunchedLight);
         /****初始化定向光源******/
-        // DirLight dirLight;
-        // dirLight.direction = vec3(-0.2, -1.0, -0.3);
-        // dirLight.ambient = vec3(0.005, 0.005, 0.005);
-        // dirLight.diffuse = vec3(0.4, 0.4, 0.4);
-        // dirLight.specular = vec3(0.5, 0.5, 0.5);
-        // shader.setUniformDirLight("dirLight", dirLight);
-        // /****初始化点光源******/
-        // for (int i = 0; i < NR_POINT_LIGHTS; i++)
-        // {
-        //     PoiLight poiLight;
-        //     poiLight.position = pointlightPositions[i];
-        //     poiLight.ambient = vec3(0.005, 0.005, 0.005);
-        //     poiLight.diffuse = vec3(0.8, 0.8, 0.8);
-        //     poiLight.specular = vec3(1.0, 1.0, 1.0);
-        //     poiLight.constant = 1.0;
-        //     poiLight.linear = 0.09;
-        //     poiLight.quadratic = 0.032;
-        //     char uniformName[1024];
-        //     sprintf(uniformName, "poiLights[%d]", i);
-        //     shader.setUniformPoiLight(uniformName, poiLight);
-        // }
-        // 设置材质
-        // Material material;
-        // material.ambient = vec3(1.0, 0.5, 0.31);
-        // // 漫反射贴图
-        // material.diffuseMap = 0;
-        // // 镜面反射贴图
-        // material.specularMap = 1;
-        // // 反光度:镜面反射的衰减系数
-        // material.shininess = 3;
-        // shader.setUniformMaterail("material", material);
+        DirLight dirLight;
+        dirLight.direction = vec3(-0.2, -1.0, -0.3);
+        dirLight.ambient = vec3(0.005, 0.005, 0.005);
+        dirLight.diffuse = vec3(0.4, 0.4, 0.4);
+        dirLight.specular = vec3(0.5, 0.5, 0.5);
+        shader.setUniformDirLight("dirLight", dirLight);
+        /****初始化点光源******/
+        for (int i = 0; i < NR_POINT_LIGHTS; i++)
+        {
+            PoiLight poiLight;
+            poiLight.position = pointlightPositions[i];
+            poiLight.ambient = vec3(0.005, 0.005, 0.005);
+            poiLight.diffuse = vec3(0.8, 0.8, 0.8);
+            poiLight.specular = vec3(1.0, 1.0, 1.0);
+            poiLight.constant = 1.0;
+            poiLight.linear = 0.09;
+            poiLight.quadratic = 0.032;
+            char uniformName[1024];
+            sprintf(uniformName, "poiLights[%d]", i);
+            shader.setUniformPoiLight(uniformName, poiLight);
+        }
         // 设置相机的位置
-        // shader.setUniformVec3("cameraPos", cameraPos);
-        // float mixPercent = sin(currentTime);
-        // shader.setUniformFloat("mixPercent", mixPercent);
-        // for (int i = 0; i < 10; i++)
-        // {
-        //     mat4 model_;
-        //     model_ = translate(model_, cubePositions[i]);
-        //     model_ = rotate(model_, currentTime + radians(i * 10.0f), vec3(1, 1, 1));
-        //     shader.setUniformMatrix4("model", model_);
-        //     shader.setUniformMatrix4("view", view);
-        //     shader.setUniformMatrix4("project", project);
-        //     // 设置片段着色器中的法线矩阵
-        //     shader.setUniformMatrix3("normalMatrix", transpose(inverse(mat3(model_))));
-        //     for (int j = 0; j < 6; j++)
-        //     {
-        //         shader.setUniformInt("texture0", 2 * (j + 1));
-        //         shader.setUniformInt("texture1", 2 * (j + 1) + 1);
-        //         glDrawArrays(GL_TRIANGLES, j * 6, 6);
-        //     }
-        // }
+        shader.setUniformVec3("cameraPos", cameraPos);
+        // 法线矩阵
+        shader.setUniformMatrix3("normalMatrix", transpose(inverse(mat3(model))));
+        // 设置贴图以外材质参数
+        // 环境光反射率
+        shader.setUniformVec3("material.ambient", vec3(0.5, 0.5, 0.5));
+        // 反光度
+        shader.setUniformInt("material.shininess", 3);
+        myModel.Draw(shader);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
