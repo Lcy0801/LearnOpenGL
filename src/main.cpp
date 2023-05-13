@@ -99,6 +99,8 @@ int main()
         glfwTerminate();
         exit(-1);
     }
+    // 禁用鼠标
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwMakeContextCurrent(window);
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -115,23 +117,24 @@ int main()
     cout << "着色器初始化!" << endl;
     // 载入模型
     Model myModel("D:/LearnOpenGL/Model/nanosuit/nanosuit.obj");
-    // 开启深度测试
-    glEnable(GL_DEPTH_TEST);
-    // 鼠标输入相关操作
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     // 绘制点光源
     Sphere pointLightSphere(X_SEGMENTS, Y_SEGMENTS, RAIDUS);
     // 四个点光源的位置
     vec3 pointlightPositions[] = {vec3(0.7, 0.2, 2.0), vec3(2.3, -3.3, -4.0), vec3(-4.0, 2.0, -12.0), vec3(0.0, 0.0, -3.0)};
-
-    // // 光源着色器
+    // 光源着色器
     Shader lightShader("D:/LearnOpenGL/shader/light.vert", "D:/LearnOpenGL/shader/light.frag");
+    // 开启深度测试
+    glEnable(GL_DEPTH_TEST);
 
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // 时间参数
+        float currentTime = glfwGetTime();
+        deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
         mat4 view, project;
         view = lookAt(camera.m_cameraPos, camera.m_cameraPos + camera.m_cameraFront, camera.m_cameraUp);
         project = perspective(camera.m_fov, (float)screenWidth / screenHeight, 0.1f, 100.0f);
@@ -152,24 +155,8 @@ int main()
         shader.setUniformMatrix4("model", model);
         shader.setUniformMatrix4("view", view);
         shader.setUniformMatrix4("project", project);
-        // lightShader.use();
-        // glBindVertexArray(lightVao);
-        // // 绘制点光源
-        // for (int i = 0; i < 4; i++)
-        // {
-        //     mat4 model;
-        //     model = translate(model, pointlightPositions[i]);
-        //     model = scale(model, vec3(0.1));
-        //     lightShader.setUniformMatrix4("model", model);
-        //     lightShader.setUniformMatrix4("view", view);
-        //     lightShader.setUniformMatrix4("project", project);
-        //     glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
-        // }
-        // 绘制模型
-        // glBindVertexArray(vao);
         myModel.Draw(shader);
         // // 设置光源的相关属性
-        float currentTime = glfwGetTime();
         // /****初始化聚束光源******/
         // PoiLight bunchedLight;
         // bunchedLight.position = cameraPos;
@@ -239,8 +226,6 @@ int main()
         //     }
         // }
         glfwSwapBuffers(window);
-        deltaTime = currentTime - lastTime;
-        lastTime = currentTime;
         glfwPollEvents();
     }
     shader.destroy();
