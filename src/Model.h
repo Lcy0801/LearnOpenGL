@@ -151,6 +151,7 @@ private:
             glm::vec3 position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
             glm::vec3 normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
             glm::vec2 textcoord;
+            // std::cout << position.x << "\t" << position.y << "\t" << position.z << std::endl;
             if (mesh->mTextureCoords[0])
             {
                 textcoord = glm::vec2(mesh->mTextureCoords[0][i].x,mesh->mTextureCoords[0][i].y);

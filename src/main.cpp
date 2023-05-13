@@ -29,7 +29,7 @@ using namespace glm;
 #define NR_POINT_LIGHTS 4
 
 // 定义相机参数相关的全局变量
-vec3 cameraPos = vec3(0, 10, 15);
+vec3 cameraPos = vec3(0, 0, 3);
 float cameraSpeed = 10;
 // 视场大小
 // 变小会产生放大的效果 变大会产生缩小的效果
@@ -116,7 +116,7 @@ int main()
     Shader shader("../shader/model.vert", "../shader/model.frag");
     cout << "着色器初始化!" << endl;
     // 载入模型
-    Model myModel("D:/LearnOpenGL/Model/nanosuit/nanosuit.obj");
+    Model myModel("D:/LearnOpenGL/Model/jk/jk.obj");
     // 绘制点光源
     Sphere pointLightSphere(X_SEGMENTS, Y_SEGMENTS, RAIDUS);
     // 四个点光源的位置
@@ -150,7 +150,7 @@ int main()
             pointLightSphere.Draw(lightShader);
         }
         mat4 model;
-        model = translate(model, vec3(0, 0, 0));
+        model = scale(model, vec3(0.1));
         shader.use();
         shader.setUniformMatrix4("model", model);
         shader.setUniformMatrix4("view", view);
