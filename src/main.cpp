@@ -30,27 +30,24 @@ using namespace glm;
 // 点光源的个数
 #define NR_POINT_LIGHTS 4
 
-// 光源位置
 
 // 定义相机参数相关的全局变量
 vec3 cameraPos = vec3(0, 10, 15);
-vec3 cameraFront = vec3(0, 0, -1);
-vec3 cameraUp = vec3(0, 1, 0);
 float cameraSpeed = 10;
 // 视场大小
 // 变小会产生放大的效果 变大会产生缩小的效果
 float fov = 45;
-
 // 相机欧拉角
-// 全局变量定义的同时必须初始化
 float yaw_ = 90.0, pitch_ = 0.0;
 // 相邻两帧的时间间隔 用于平衡不同性能机器渲染时相机的移动速度
-float deltaTime = 0, lastTime = 0;
-float lastX = 400, lastY = 400;
 float sensitivity = 0.05;
-bool firstMouse = true;
-// amera(glm::vec3 cameraPos, float yaw_, float pitch_, float speed, float sensitivity, float fov)
 Camera camera(cameraPos,yaw_,pitch_,cameraSpeed,sensitivity,fov);
+
+// 全局变量定义的同时必须初始化
+float deltaTime = 0, lastTime = 0;
+float lastX, lastY;
+// 是否为第一帧
+bool firstMouse = true;
 
 // 视窗大小改变回调函数
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
@@ -70,49 +67,15 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos)
         lastY = ypos;
         firstMouse = false;
     }
-    float xoffset, yoffset;
-    xoffset = xpos - lastX;
-    yoffset = ypos - lastY;
+    camera.turn(lastX, lastY, xpos, ypos);
     lastX = xpos;
     lastY = ypos;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-    yaw_ -= xoffset;
-    pitch_ -= yoffset;
-    if (pitch_ > 89)
-    {
-        pitch_ = 89;
-    }
-    else if (pitch_ < -89)
-    {
-        pitch_ = -89;
-    }
-    float directionX, directionY, directionZ;
-    directionX = cos(radians(pitch_)) * cos(radians(yaw_));
-    directionY = sin(radians(pitch_));
-    directionZ = -cos(radians(pitch_)) * sin(radians(yaw_));
-    cameraFront = normalize(vec3(directionX, directionY, directionZ));
-    // 更新cameraUP
-    // vec3 cameraRight;
-    // cameraRight[0] = sin(radians(yaw_));
-    // cameraRight[1] = 0;
-    // cameraFront[2] = cos(radians(yaw_));
-    // cameraUp = normalize(cross(-cameraFront,cameraRight));
 }
 
 // 鼠标滚轮回调函数
 void scroll_back(GLFWwindow *window, double xoffset, double yoffset)
 {
-    fov += sensitivity * yoffset;
-    if (fov > 45)
-    {
-        fov = 45;
-    }
-    if (fov < 1)
-    {
-        fov = 1;
-    }
-    return;
+    camera.zoom(yoffset);
 }
 void processInput(GLFWwindow *window)
 {
@@ -121,26 +84,7 @@ void processInput(GLFWwindow *window)
     {
         glfwSetWindowShouldClose(window, true);
     }
-    // 前进
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    {
-        cameraPos = cameraPos + cameraFront * cameraSpeed * deltaTime;
-    }
-    // 后退
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    {
-        cameraPos = cameraPos - cameraFront * cameraSpeed * deltaTime;
-    }
-    // 左移
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    {
-        cameraPos = cameraPos + normalize(cross(cameraUp, cameraFront)) * cameraSpeed * deltaTime;
-    }
-    // 右移
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    {
-        cameraPos = cameraPos + normalize(cross(cameraFront, cameraUp)) * cameraSpeed * deltaTime;
-    }
+    camera.move(window, deltaTime);
 }
 
 int main()
@@ -243,8 +187,8 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         mat4 view, project, model;
         model = translate(model, vec3(0, 0, 0));
-        view = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-        project = perspective(fov, (float)screenWidth / screenHeight, 0.1f, 100.0f);
+        view = lookAt(camera.m_cameraPos, camera.m_cameraPos + camera.m_cameraFront, camera.m_cameraUp);
+        project = perspective(camera.m_fov, (float)screenWidth / screenHeight, 0.1f, 100.0f);
         shader.use();
         shader.setUniformMatrix4("model", model);
         shader.setUniformMatrix4("view", view);
