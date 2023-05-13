@@ -79,4 +79,4 @@ src/main.o: src/main.cpp include/glad/glad.h include/KHR/khrplatform.h \
  include/glm/gtc/../gtc/quaternion_simd.inl include/glm/gtc/type_ptr.inl \
  shader/Shader.h src/Model.h include/assimp/Importer.hpp \
  include/assimp/scene.h include/assimp/postprocess.h include/stb_image.h \
- src/Camera.h
+ src/Camera.h src/Sphere.h

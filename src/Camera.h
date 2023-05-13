@@ -1,4 +1,5 @@
-
+#ifndef CAMERA_H
+#define CAMERA_H
 // OpenGLæÿ’Û‘ÀÀ„ø‚
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -102,3 +103,4 @@ public:
         return;
     }
 };
+#endif

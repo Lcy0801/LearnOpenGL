@@ -13,12 +13,10 @@
 #include <Shader.h>
 #include <Model.h>
 #include <Camera.h>
+#include <Sphere.h>
 using namespace std;
 using namespace glm;
 
-// 引入标准图像库 加载纹理贴图
-// #define STB_IMAGE_IMPLEMENTATION
-// #include <stb_image.h>
 #define screenWidth 800
 #define screenHeight 800
 
@@ -30,7 +28,6 @@ using namespace glm;
 // 点光源的个数
 #define NR_POINT_LIGHTS 4
 
-
 // 定义相机参数相关的全局变量
 vec3 cameraPos = vec3(0, 10, 15);
 float cameraSpeed = 10;
@@ -41,7 +38,7 @@ float fov = 45;
 float yaw_ = 90.0, pitch_ = 0.0;
 // 相邻两帧的时间间隔 用于平衡不同性能机器渲染时相机的移动速度
 float sensitivity = 0.05;
-Camera camera(cameraPos,yaw_,pitch_,cameraSpeed,sensitivity,fov);
+Camera camera(cameraPos, yaw_, pitch_, cameraSpeed, sensitivity, fov);
 
 // 全局变量定义的同时必须初始化
 float deltaTime = 0, lastTime = 0;
@@ -123,72 +120,34 @@ int main()
     // 鼠标输入相关操作
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     // 绘制点光源
+    Sphere pointLightSphere(X_SEGMENTS, Y_SEGMENTS, RAIDUS);
     // 四个点光源的位置
-    // vec3 pointlightPositions[] = {
-    //     vec3(0.7, 0.2, 2.0),
-    //     vec3(2.3, -3.3, -4.0),
-    //     vec3(-4.0, 2.0, -12.0),
-    //     vec3(0.0, 0.0, -3.0)};
-    // // 计算球面顶点
-    // vector<float> sphereVertices;
-    // float dxAngle = 2 * PI / X_SEGMENTS;
-    // float dyAngle = PI / Y_SEGMENTS;
-    // for (int i = 0; i <= Y_SEGMENTS; i++)
-    // {
-    //     float y = cos(i * dyAngle);
-    //     for (int j = 0; j <= X_SEGMENTS; j++)
-    //     {
-    //         float x = sin(i * dyAngle) * cos(j * dxAngle);
-    //         float z = sin(i * dyAngle) * sin(j * dxAngle);
-    //         sphereVertices.push_back(x);
-    //         sphereVertices.push_back(y);
-    //         sphereVertices.push_back(z);
-    //     }
-    // }
-    // // 计算球面三角对应的顶点索引
-    // vector<int> sphereIndices;
-    // for (int i = 0; i < Y_SEGMENTS; i++)
-    // {
-    //     for (int j = 0; j < X_SEGMENTS; j++)
-    //     {
-    //         int index1 = i * (X_SEGMENTS + 1) + j;
-    //         int index2 = i * (X_SEGMENTS + 1) + j + 1;
-    //         int index3 = (i + 1) * (X_SEGMENTS + 1) + j;
-    //         int index4 = (i + 1) * (X_SEGMENTS + 1) + j + 1;
-    //         sphereIndices.push_back(index1);
-    //         sphereIndices.push_back(index2);
-    //         sphereIndices.push_back(index4);
-    //         sphereIndices.push_back(index1);
-    //         sphereIndices.push_back(index3);
-    //         sphereIndices.push_back(index4);
-    //     }
-    // }
-    // unsigned int lightVao;
-    // glGenVertexArrays(1, &lightVao);
-    // glBindVertexArray(lightVao);
-    // unsigned int lightVbo;
-    // glGenBuffers(1, &lightVbo);
-    // glBindBuffer(GL_ARRAY_BUFFER, lightVbo);
-    // glBufferData(GL_ARRAY_BUFFER, sizeof(GL_FLOAT) * sphereVertices.size(), &sphereVertices[0], GL_STATIC_DRAW);
-    // glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * sizeof(GL_FLOAT), 0);
-    // glEnableVertexAttribArray(0);
-    // unsigned int lightIbo;
-    // glGenBuffers(1, &lightIbo);
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lightIbo);
-    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GL_INT) * sphereIndices.size(), &sphereIndices[0], GL_STATIC_DRAW);
-    // glBindVertexArray(0);
+    vec3 pointlightPositions[] = {vec3(0.7, 0.2, 2.0), vec3(2.3, -3.3, -4.0), vec3(-4.0, 2.0, -12.0), vec3(0.0, 0.0, -3.0)};
+
     // // 光源着色器
-    // Shader lightShader("D:/LearnOpenGL/shader/light.vert", "D:/LearnOpenGL/shader/light.frag");
+    Shader lightShader("D:/LearnOpenGL/shader/light.vert", "D:/LearnOpenGL/shader/light.frag");
 
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        mat4 view, project, model;
-        model = translate(model, vec3(0, 0, 0));
+        mat4 view, project;
         view = lookAt(camera.m_cameraPos, camera.m_cameraPos + camera.m_cameraFront, camera.m_cameraUp);
         project = perspective(camera.m_fov, (float)screenWidth / screenHeight, 0.1f, 100.0f);
+        // 绘制点光源
+        lightShader.use();
+        lightShader.setUniformMatrix4("view", view);
+        lightShader.setUniformMatrix4("project", project);
+        for (int i = 0; i < NR_POINT_LIGHTS; i++)
+        {
+            mat4 pointLightModel;
+            pointLightModel = translate(pointLightModel, pointlightPositions[i]);
+            lightShader.setUniformMatrix4("model", pointLightModel);
+            pointLightSphere.Draw(lightShader);
+        }
+        mat4 model;
+        model = translate(model, vec3(0, 0, 0));
         shader.use();
         shader.setUniformMatrix4("model", model);
         shader.setUniformMatrix4("view", view);
