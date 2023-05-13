@@ -5,23 +5,26 @@
 #include <vector>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-// OpenGLçŸ©é˜µè¿ç®—åº“
+// OpenGL¾ØÕóÔËËã¿â
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <Shader.h>
-// æ¨¡å‹å¯¼å…¥åº“
+// Ä£ĞÍµ¼Èë¿â
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+// Í¼Ïñ¼ÓÔØ¿â
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
-// è´´å›¾ç±»å‹
+// ÌùÍ¼ÀàĞÍ
 enum TextureType
 {
-    DIFFUSE = 1, // æ¼«åå°„è´´å›¾
-    SPECULAR = 2 // é•œé¢åå°„è´´å›¾
+    DIFFUSE = 1, // Âş·´ÉäÌùÍ¼
+    SPECULAR = 2 // ¾µÃæ·´ÉäÌùÍ¼
 };
 
-// é¡¶ç‚¹ç»“æ„ä½“
+// ¶¥µã½á¹¹Ìå
 struct Vertext
 {
     glm::vec3 Position;
@@ -30,7 +33,7 @@ struct Vertext
     Vertext(glm::vec3 position, glm::vec3 normal, glm::vec2 textcoord) : Position(position), Normal(normal), Textcoord(textcoord){};
 };
 
-// çº¹ç†å¯¹è±¡ç»“æ„ä½“
+// ÎÆÀí¶ÔÏó½á¹¹Ìå
 struct Texture
 {
     unsigned int id;
@@ -48,18 +51,18 @@ private:
         glBindVertexArray(m_vao);
         glGenBuffers(1, &m_vbo);
         glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Vertext) * m_vertices.size(), &m_textures[0], GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Vertext) * m_vertices.size(), &m_vertices[0], GL_STATIC_DRAW);
         glGenBuffers(1, &m_ibo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ibo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GL_INT) * m_indices.size(), &m_indices[0], GL_STATIC_DRAW);
-        // é“¾æ¥é¡¶ç‚¹å±æ€§
-        // é¡¶ç‚¹åæ ‡
+        // Á´½Ó¶¥µãÊôĞÔ
+        // ¶¥µã×ø±ê
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 8 * sizeof(GL_FLOAT), (void *)offsetof(Vertext, Position));
-        // é¡¶ç‚¹æ³•çº¿
+        // ¶¥µã·¨Ïß
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 3, GL_FLOAT, false, 8 * sizeof(GL_FLOAT), (void *)offsetof(Vertext, Normal));
-        // é¡¶ç‚¹çº¹ç†åæ ‡
+        // ¶¥µãÎÆÀí×ø±ê
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_FLOAT, false, 8 * sizeof(GL_FLOAT), (void *)offsetof(Vertext, Textcoord));
         glBindVertexArray(0);
@@ -67,9 +70,9 @@ private:
 
 public:
     std::vector<Vertext> m_vertices;
-    std::vector<int> m_indices;
+    std::vector<unsigned int> m_indices;
     std::vector<Texture> m_textures;
-    Mesh(const std::vector<Vertext> &vertices, const std::vector<int> &indices, const std::vector<Texture> &textures)
+    Mesh(const std::vector<Vertext> &vertices, const std::vector<unsigned int> &indices, const std::vector<Texture> &textures)
     {
         m_vertices = vertices;
         m_indices = indices;
@@ -80,16 +83,17 @@ public:
     {
         unsigned int diffsueNr = 1;
         unsigned int specularNr = 1;
+        shader.use();
         for (int i = 0; i < m_textures.size(); i++)
         {
             glActiveTexture(GL_TEXTURE0 + i);
             Texture texture = m_textures[i];
             glBindTexture(GL_TEXTURE_2D, texture.id);
-            // çº¹ç†å¯¹è±¡åœ¨ç€è‰²å™¨ä¸­å¯¹åº”çš„é‡‡æ ·å™¨å˜é‡åç§°
+            // ÎÆÀí¶ÔÏóÔÚ×ÅÉ«Æ÷ÖĞ¶ÔÓ¦µÄ²ÉÑùÆ÷±äÁ¿Ãû³Æ
             std::string samplerName;
             if (texture.type == DIFFUSE)
             {
-                samplerName = "material.diffuseMap_" + std::to_string(diffsueNr);
+                samplerName = "diffuseMap_" + std::to_string(diffsueNr);
                 diffsueNr++;
             }
             else if (texture.type == SPECULAR)
@@ -97,12 +101,12 @@ public:
                 samplerName = "material.specularMap_" + std::to_string(specularNr);
                 specularNr++;
             }
-            shader.setUniformInt(samplerName, GL_TEXTURE0 + i);
+            shader.setUniformInt(samplerName, i);
         }
         glActiveTexture(GL_TEXTURE0);
-        // ç»˜åˆ¶ç½‘æ ¼
+        // »æÖÆÍø¸ñ
         glBindVertexArray(m_vao);
-        glDrawElements(GL_TRIANGLES, m_indices.size(), GL_INT, 0);
+        glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
     }
 };
@@ -110,17 +114,13 @@ public:
 class Model
 {
 private:
-    std::vector<Mesh> m_meshes;
-    std::string m_directory;
-    // æ¨¡å‹æ‰€æœ‰å·²ç»åŠ è½½è¿‡çš„çº¹ç†
-    std::vector<Texture> m_texturesLoaded;
     void loadModel(std::string path)
     {
         Assimp::Importer import;
-        const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_FlipUVs);
-        if (!scene || scene->mFlags | AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+        const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs);
+        if (!scene || (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) || !scene->mRootNode)
         {
-            std::cout << "æ¨¡å‹å¯¼å…¥å¤±è´¥!" << std::endl;
+            std::cout << "Ä£ĞÍµ¼ÈëÊ§°Ü!" << std::endl;
             std::cout << import.GetErrorString() << std::endl;
             return;
         }
@@ -143,17 +143,18 @@ private:
     Mesh processMesh(aiMesh *mesh, const aiScene *scene)
     {
         std::vector<Vertext> vertices;
-        std::vector<int> indices;
+        std::vector<unsigned int> indices;
         std::vector<Texture> textures;
-        // é¡¶ç‚¹æ•°æ®å¤„ç†
+        // ¶¥µãÊı¾İ´¦Àí
         for (int i = 0; i < mesh->mNumVertices; i++)
         {
             glm::vec3 position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
             glm::vec3 normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
             glm::vec2 textcoord;
+            // std::cout << position.x << "\t" << position.y << "\t" << position.z << "\t" << std::endl;
             if (mesh->mTextureCoords[0])
             {
-                textcoord = glm::vec2(mesh->mTextureCoords[0][i].x);
+                textcoord = glm::vec2(mesh->mTextureCoords[0][i].x,mesh->mTextureCoords[0][i].y);
             }
             else
             {
@@ -162,7 +163,7 @@ private:
             Vertext vertex(position, normal, textcoord);
             vertices.push_back(vertex);
         }
-        // ç´¢å¼•æ•°æ®å¤„ç†
+        // Ë÷ÒıÊı¾İ´¦Àí
         for (int i = 0; i < mesh->mNumFaces; i++)
         {
             aiFace face = mesh->mFaces[i];
@@ -171,34 +172,35 @@ private:
                 indices.push_back(face.mIndices[j]);
             }
         }
-        // çº¹ç†æ•°æ®å¤„ç†
+        // ÎÆÀíÊı¾İ´¦Àí
         if (mesh->mMaterialIndex >= 0)
         {
             aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
             std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, DIFFUSE);
             textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-            std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, SPECULAR);
-            textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+            // std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, SPECULAR);
+            // textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
         }
+        return Mesh(vertices, indices, textures);
     }
     std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, TextureType typeName)
     {
         auto loadTexture = [](const char *imageFile, std::string directory)
         {
-            // çº¹ç†
+            // ÎÆÀí
             unsigned int textureId;
             glGenTextures(1, &textureId);
-            // è®¾ç½®çº¹ç†ç¯ç»•æ–¹å¼
+            // ÉèÖÃÎÆÀí»·ÈÆ·½Ê½
             glTextureParameteri(textureId, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTextureParameteri(textureId, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            // è®¾ç½®çº¹ç†è¿‡æ»¤æ–¹å¼
+            // ÉèÖÃÎÆÀí¹ıÂË·½Ê½
             glTextureParameteri(textureId, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             glTextureParameteri(textureId, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            // çº¹ç†è´´å›¾
+            // ÎÆÀíÌùÍ¼
             std::string imagePath;
             imagePath = directory + '/' + imageFile;
             int width, height, nChannels;
-            unsigned char *textureData = stbi_load(imagePath, &width, &height, &nChannels, 0);
+            unsigned char *textureData = stbi_load(imagePath.c_str(), &width, &height, &nChannels, 0);
             if (textureData)
             {
                 GLenum format;
@@ -214,22 +216,22 @@ private:
                 {
                     format = GL_RGBA;
                 }
-                // ç»‘å®šçº¹ç†
+                // °ó¶¨ÎÆÀí
                 glBindTexture(GL_TEXTURE_2D, textureId);
                 glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, textureData);
                 glGenerateMipmap(GL_TEXTURE_2D);
-                // é‡Šæ”¾è´´å›¾å†…å­˜
+                // ÊÍ·ÅÌùÍ¼ÄÚ´æ
                 stbi_image_free(textureData);
             }
             else
             {
                 std::cout << imageFile << std::endl;
-                std::cout << "è¯¥çº¹ç†è´´å›¾è½½å…¥å¤±è´¥!" << std::endl;
+                std::cout << "¸ÃÎÆÀíÌùÍ¼ÔØÈëÊ§°Ü!" << std::endl;
                 stbi_image_free(textureData);
             }
             return textureId;
         };
-        
+
         std::vector<Texture> textures;
 
         for (int i = 0; i < mat->GetTextureCount(type); i++)
@@ -237,10 +239,10 @@ private:
             aiString str;
             mat->GetTexture(type, i, &str);
             bool skip = false;
-            // é˜²æ­¢æ¨¡å‹çº¹ç†é‡å¤åŠ è½½ æå‡åŠ è½½æ•ˆç‡
+            // ·ÀÖ¹Ä£ĞÍÎÆÀíÖØ¸´¼ÓÔØ ÌáÉı¼ÓÔØĞ§ÂÊ
             for (auto &textureLoaded : m_texturesLoaded)
             {
-                if (strcmp(textureLoaded.path.c_str(), str.data()) == 0)
+                if (strcmp(textureLoaded.path.c_str(), str.data) == 0)
                 {
                     textures.push_back(textureLoaded);
                     skip = true;
@@ -261,13 +263,17 @@ private:
     }
 
 public:
+    std::vector<Mesh> m_meshes;
+    std::string m_directory;
+    // Ä£ĞÍËùÓĞÒÑ¾­¼ÓÔØ¹ıµÄÎÆÀí
+    std::vector<Texture> m_texturesLoaded;
     Model(char *path)
     {
         loadModel(path);
     }
     void Draw(Shader shader)
     {
-        // ç»˜åˆ¶æ‰€æœ‰ç½‘æ ¼
+        // »æÖÆËùÓĞÍø¸ñ
         for (auto mesh : m_meshes)
         {
             mesh.Draw(shader);

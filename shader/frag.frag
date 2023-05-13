@@ -15,17 +15,17 @@ struct Light
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
-    // ç‚¹å…‰æº
+    // µã¹âÔ´
     vec3 position;
-    // å¹³è¡Œå…‰
+    // Æ½ĞĞ¹â
     vec3 direction;
-    // å¼•å…¥ç‚¹å…‰æºçš„è¡°å‡ç³»æ•°
+    // ÒıÈëµã¹âÔ´µÄË¥¼õÏµÊı
     float constant;
     float linear;
     float quadratic;
-    // å¼•å…¥å…‰åˆ‡è§’ å®ç°èšå…‰æ•ˆæœ
+    // ÒıÈë¹âÇĞ½Ç ÊµÏÖ¾Û¹âĞ§¹û
     float cutOff;
-    // å¼•å…¥å¤–å…‰åˆ‡è§’ å¹³æ»‘è¾¹ç¼˜
+    // ÒıÈëÍâ¹âÇĞ½Ç Æ½»¬±ßÔµ
     float outerCutOff;
 };
 
@@ -46,20 +46,20 @@ void main()
     theta = dot(normalize(fragPos-light.position),normalize(light.direction));
     float intensity = (theta-light.outerCutOff)/(light.cutOff-light.outerCutOff);
     intensity = clamp(intensity,0,1);
-    // ç¯å¢ƒå…‰
+    // »·¾³¹â
     vec3 ambientRes = light.ambient*material.ambient;
-    // æ¼«åå°„å…‰ç…§
+    // Âş·´Éä¹âÕÕ
     float r = distance(light.position,fragPos);
-    // è®¡ç®—è¡°å‡åçš„å…‰å¼º
+    // ¼ÆËãË¥¼õºóµÄ¹âÇ¿
     float attenuation = 1/(1+light.constant+light.linear*r+light.quadratic*pow(r,2));
     vec3 lightDir = normalize(light.position-fragPos);
     vec3 fragNormalW = normalize(normalMatrix * fragNormal);
     vec3 diffuseRes = light.diffuse*attenuation*max(dot(lightDir,fragNormalW),0)*vec3(texture(material.diffuseMap,fragTextcoord));
-    // é•œé¢åå°„åˆ†é‡
+    // ¾µÃæ·´Éä·ÖÁ¿
     vec3 viewDir = normalize(cameraPos-fragPos);
-    // è®¡ç®—åŠç¨‹å‘é‡
+    // ¼ÆËã°ë³ÌÏòÁ¿
     vec3 h = normalize(viewDir+ lightDir);
     vec3 specularRes = light.specular*attenuation*vec3(texture(material.specularMap,fragTextcoord))*pow(max(dot(h,fragNormalW),0),material.shininess);
-    // åˆ†é‡å åŠ 
+    // ·ÖÁ¿µş¼Ó
     fragColor =vec4(ambientRes+intensity*diffuseRes+intensity*specularRes,1); 
 }

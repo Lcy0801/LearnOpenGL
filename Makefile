@@ -25,7 +25,7 @@ INCLUDE	:= include shader src
 
 # define lib directory
 LIB		:= lib
-LIBRARIES	:= -lglad -lglfw3dll
+LIBRARIES	:= -lglad -lglfw3dll -lassimp.dll
 
 ifeq ($(OS),Windows_NT)
 MAIN	:= main.exe

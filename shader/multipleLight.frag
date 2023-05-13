@@ -2,20 +2,20 @@
 
 struct Material
 {
-    // ç¯å¢ƒå…‰åå°„ç‡
+    // »·¾³¹â·´ÉäÂÊ
     vec3 ambient;
-    // æ¼«åå°„ç‡
+    // Âş·´ÉäÂÊ
     vec3 diffuse;
-    // æ¼«åå°„è´´å›¾
+    // Âş·´ÉäÌùÍ¼
     sampler2D diffuseMap;
-    // é•œé¢åå°„ç‡
+    // ¾µÃæ·´ÉäÂÊ
     vec3 specular;
-    // é•œé¢åå°„è´´å›¾
+    // ¾µÃæ·´ÉäÌùÍ¼
     sampler2D specularMap;
-    // åå…‰åº¦
+    // ·´¹â¶È
     int shininess;
 };
-// å®šå‘å…‰
+// ¶¨Ïò¹â
 struct DirLight 
 {
     vec3 direction;
@@ -23,7 +23,7 @@ struct DirLight
     vec3 diffuse;
     vec3 specular;
 };
-// ç‚¹å…‰æº
+// µã¹âÔ´
 struct  PointLight
 {
     vec3 position;
@@ -41,15 +41,15 @@ struct  PointLight
 
 
 uniform Material material;
-// ä¸€ä¸ªå®šå‘å…‰ å››ä¸ªç‚¹å…‰æº ä¸€ä¸ªèšæŸå…‰
+// Ò»¸ö¶¨Ïò¹â ËÄ¸öµã¹âÔ´ Ò»¸ö¾ÛÊø¹â
 uniform DirLight dirLight;
 uniform PointLight poiLights[NR_POINT_LIGHTS];
 uniform PointLight bunchedLight;
-// ç›¸æœºçš„ä½ç½®
+// Ïà»úµÄÎ»ÖÃ
 uniform vec3 cameraPos;
-// æ³•çº¿çŸ©é˜µ
+// ·¨Ïß¾ØÕó
 uniform mat3 normalMatrix;
-// çº¹ç†è´´å›¾
+// ÎÆÀíÌùÍ¼
 uniform sampler2D texture0;
 uniform sampler2D texture1;
 uniform float mixPercent;
@@ -62,12 +62,12 @@ out vec4 fragColor;
 
 vec3 calcDirLight(DirLight dirLight,vec3 fragNormalW,vec3 viewDir)
 {
-    // ç¯å¢ƒå…‰
+    // »·¾³¹â
     vec3 ambientRes = dirLight.ambient*material.ambient;
-    // æ¼«åå°„å…‰
+    // Âş·´Éä¹â
     vec4 diffuse=mix(mix(texture(texture0,fragTextcoord),texture(texture1,fragTextcoord),mixPercent),texture(material.diffuseMap,fragTextcoord),0.1);
     vec3 diffuseRes = dirLight.diffuse*max(dot(normalize(-dirLight.direction),fragNormalW),0)*vec3(diffuse);
-    // é•œé¢åå°„
+    // ¾µÃæ·´Éä
     vec3 h = normalize(viewDir-dirLight.direction);
     vec3 specularRes = dirLight.specular*vec3(texture(material.specularMap,fragTextcoord))*pow(max(dot(h,fragNormalW),0),material.shininess);
     vec3 dirLightRes = ambientRes+diffuseRes+specularRes;
@@ -79,19 +79,19 @@ vec3 calcDirLight(DirLight dirLight,vec3 fragNormalW,vec3 viewDir)
 
 vec3 calPointLight(PointLight poiLight,vec3 fragNormalW,vec3 viewDir)
 {
-    // ç¯å¢ƒå…‰
+    // »·¾³¹â
     vec3 ambientRes = poiLight.ambient*material.ambient;
-    // è·ç¦»è¡°å‡ç³»æ•°
+    // ¾àÀëË¥¼õÏµÊı
     float r = distance(poiLight.position,fragPos);
     float attenuation = 1/(1+poiLight.constant+poiLight.linear*r+poiLight.quadratic*pow(r,2));
-    // æ¼«åå°„
+    // Âş·´Éä
     vec4 diffuse=mix(mix(texture(texture0,fragTextcoord),texture(texture1,fragTextcoord),mixPercent),texture(material.diffuseMap,fragTextcoord),0.1);
     vec3 lightDir = normalize(poiLight.position - fragPos);
     vec3 diffuseRes = poiLight.diffuse*attenuation*max(dot(lightDir,fragNormalW),0)*vec3(diffuse);
-    // é•œé¢åå°„
+    // ¾µÃæ·´Éä
     vec3 h = normalize(viewDir+lightDir);
     vec3 specularRes = poiLight.specular*attenuation*vec3(texture(material.specularMap,fragTextcoord))*pow(max(dot(h,fragNormalW),0),material.shininess);
-    // åˆ¤æ–­æ˜¯å¦ä¸ºèšå…‰
+    // ÅĞ¶ÏÊÇ·ñÎª¾Û¹â
     float intensity=1;
     if(poiLight.cutOff!=0)
     {
@@ -107,15 +107,15 @@ void main()
 {
     vec3 fragNormalW = normalize(normalMatrix*fragNormal);
     vec3 viewDir = normalize(cameraPos-fragPos);
-    // å®šå‘å…‰
+    // ¶¨Ïò¹â
     vec3 fragRes;
     fragRes = calcDirLight(dirLight,fragNormalW,viewDir);
-    // ç‚¹å…‰æº
+    // µã¹âÔ´
     for(int i=0;i<NR_POINT_LIGHTS;i++)
     {
         fragRes += calPointLight(poiLights[i],fragNormalW,viewDir);
     }
-    // èšæŸå…‰
+    // ¾ÛÊø¹â
     fragRes +=calPointLight(bunchedLight,fragNormalW,viewDir);
     fragColor = vec4(fragRes,1);
 }

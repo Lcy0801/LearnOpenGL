@@ -6,50 +6,53 @@
 #include <GLFW/glfw3.h>
 #include <math.h>
 #include <ctime>
-#include <Shader.h>
-#include <Model.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
+#include <Shader.h>
+#include <Model.h>
+#include <Camera.h>
 using namespace std;
 using namespace glm;
 
-// å¼•å…¥æ ‡å‡†å›¾åƒåº“ åŠ è½½çº¹ç†è´´å›¾
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
+// ÒıÈë±ê×¼Í¼Ïñ¿â ¼ÓÔØÎÆÀíÌùÍ¼
+// #define STB_IMAGE_IMPLEMENTATION
+// #include <stb_image.h>
 #define screenWidth 800
 #define screenHeight 800
 
 #define X_SEGMENTS 360
 #define Y_SEGMENTS 180
-// çƒå½¢å…‰æºçš„åŠå¾„å¤§å°
+// ÇòĞÎ¹âÔ´µÄ°ë¾¶´óĞ¡
 #define RAIDUS 1
 #define PI 3.1415926
-// ç‚¹å…‰æºçš„ä¸ªæ•°
+// µã¹âÔ´µÄ¸öÊı
 #define NR_POINT_LIGHTS 4
 
-// å…‰æºä½ç½®
+// ¹âÔ´Î»ÖÃ
 
-// å®šä¹‰ç›¸æœºå‚æ•°ç›¸å…³çš„å…¨å±€å˜é‡
-vec3 cameraPos = vec3(0, 0, 3);
+// ¶¨ÒåÏà»ú²ÎÊıÏà¹ØµÄÈ«¾Ö±äÁ¿
+vec3 cameraPos = vec3(0, 10, 15);
 vec3 cameraFront = vec3(0, 0, -1);
 vec3 cameraUp = vec3(0, 1, 0);
 float cameraSpeed = 10;
-// è§†åœºå¤§å°
-// å˜å°ä¼šäº§ç”Ÿæ”¾å¤§çš„æ•ˆæœ å˜å¤§ä¼šäº§ç”Ÿç¼©å°çš„æ•ˆæœ
+// ÊÓ³¡´óĞ¡
+// ±äĞ¡»á²úÉú·Å´óµÄĞ§¹û ±ä´ó»á²úÉúËõĞ¡µÄĞ§¹û
 float fov = 45;
 
-// ç›¸æœºæ¬§æ‹‰è§’
-// å…¨å±€å˜é‡å®šä¹‰çš„åŒæ—¶å¿…é¡»åˆå§‹åŒ–
+// Ïà»úÅ·À­½Ç
+// È«¾Ö±äÁ¿¶¨ÒåµÄÍ¬Ê±±ØĞë³õÊ¼»¯
 float yaw_ = 90.0, pitch_ = 0.0;
-// ç›¸é‚»ä¸¤å¸§çš„æ—¶é—´é—´éš” ç”¨äºå¹³è¡¡ä¸åŒæ€§èƒ½æœºå™¨æ¸²æŸ“æ—¶ç›¸æœºçš„ç§»åŠ¨é€Ÿåº¦
+// ÏàÁÚÁ½Ö¡µÄÊ±¼ä¼ä¸ô ÓÃÓÚÆ½ºâ²»Í¬ĞÔÄÜ»úÆ÷äÖÈ¾Ê±Ïà»úµÄÒÆ¶¯ËÙ¶È
 float deltaTime = 0, lastTime = 0;
 float lastX = 400, lastY = 400;
 float sensitivity = 0.05;
 bool firstMouse = true;
+// amera(glm::vec3 cameraPos, float yaw_, float pitch_, float speed, float sensitivity, float fov)
+Camera camera(cameraPos,yaw_,pitch_,cameraSpeed,sensitivity,fov);
 
-// è§†çª—å¤§å°æ”¹å˜å›è°ƒå‡½æ•°
+// ÊÓ´°´óĞ¡¸Ä±ä»Øµ÷º¯Êı
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
     if (window)
@@ -58,7 +61,7 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height)
     }
 }
 
-// é¼ æ ‡ç§»åŠ¨å›è°ƒå‡½æ•°
+// Êó±êÒÆ¶¯»Øµ÷º¯Êı
 void mouse_callback(GLFWwindow *window, double xpos, double ypos)
 {
     if (firstMouse)
@@ -89,7 +92,7 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos)
     directionY = sin(radians(pitch_));
     directionZ = -cos(radians(pitch_)) * sin(radians(yaw_));
     cameraFront = normalize(vec3(directionX, directionY, directionZ));
-    // æ›´æ–°cameraUP
+    // ¸üĞÂcameraUP
     // vec3 cameraRight;
     // cameraRight[0] = sin(radians(yaw_));
     // cameraRight[1] = 0;
@@ -97,7 +100,7 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos)
     // cameraUp = normalize(cross(-cameraFront,cameraRight));
 }
 
-// é¼ æ ‡æ»šè½®å›è°ƒå‡½æ•°
+// Êó±ê¹öÂÖ»Øµ÷º¯Êı
 void scroll_back(GLFWwindow *window, double xoffset, double yoffset)
 {
     fov += sensitivity * yoffset;
@@ -113,27 +116,27 @@ void scroll_back(GLFWwindow *window, double xoffset, double yoffset)
 }
 void processInput(GLFWwindow *window)
 {
-    // å…³é—­çª—å£
+    // ¹Ø±Õ´°¿Ú
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(window, true);
     }
-    // å‰è¿›
+    // Ç°½ø
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
         cameraPos = cameraPos + cameraFront * cameraSpeed * deltaTime;
     }
-    // åé€€
+    // ºóÍË
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
         cameraPos = cameraPos - cameraFront * cameraSpeed * deltaTime;
     }
-    // å·¦ç§»
+    // ×óÒÆ
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     {
         cameraPos = cameraPos + normalize(cross(cameraUp, cameraFront)) * cameraSpeed * deltaTime;
     }
-    // å³ç§»
+    // ÓÒÒÆ
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     {
         cameraPos = cameraPos + normalize(cross(cameraFront, cameraUp)) * cameraSpeed * deltaTime;
@@ -143,7 +146,7 @@ void processInput(GLFWwindow *window)
 int main()
 {
 
-    // åˆ›å»ºçª—å£
+    // ´´½¨´°¿Ú
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -151,316 +154,192 @@ int main()
     GLFWwindow *window = glfwCreateWindow(screenWidth, screenHeight, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
-        cout << "åˆå§‹åŒ–çª—å£å¤±è´¥!" << endl;
+        cout << "³õÊ¼»¯´°¿ÚÊ§°Ü!" << endl;
         glfwTerminate();
         exit(-1);
     }
     glfwMakeContextCurrent(window);
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        cout << "GLADåˆå§‹åŒ–å¤±è´¥!" << endl;
-        glfwTerminate(); // é‡Šæ”¾èµ„æº
+        cout << "GLAD³õÊ¼»¯Ê§°Ü!" << endl;
+        glfwTerminate(); // ÊÍ·Å×ÊÔ´
         exit(-1);
     }
     glViewport(0, 0, screenWidth, screenHeight);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_back);
-    // ç»˜åˆ¶æŠ•å…‰ç‰©
-    Shader shader("../shader/vertex.vert", "../shader/multipleLight.frag");
-    float vertices[] = {
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
-        0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-
-        -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f,
-
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-        0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f};
-    vec3 cubePositions[] = {
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(2.0f, 5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3(2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f, 3.0f, -7.5f),
-        glm::vec3(1.3f, -2.0f, -2.5f),
-        glm::vec3(1.5f, 2.0f, -2.5f),
-        glm::vec3(1.5f, 0.2f, -1.5f),
-        glm::vec3(-1.3f, 1.0f, -1.5f)};
-    // é¡¶ç‚¹æ•°ç»„å¯¹è±¡
-    unsigned int vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-    unsigned int vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    // é“¾æ¥ç€è‰²å™¨é¡¶ç‚¹å±æ€§ä¸é¡¶ç‚¹æ•°æ®çš„å¯¹åº”å…³ç³»
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 8 * sizeof(GL_FLOAT), 0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, false, 8 * sizeof(GL_FLOAT), (void *)(3 * sizeof(GL_FLOAT)));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 2, GL_FLOAT, false, 8 * sizeof(GL_FLOAT), (void *)(6 * sizeof(GL_FLOAT)));
-    glEnableVertexAttribArray(2);
-    // çº¹ç†
-    auto loadTexture = [](unsigned int &texture, const char *imageFile, int TextureUnit)
-    {
-        // çº¹ç†
-        glGenTextures(1, &texture);
-        glActiveTexture(TextureUnit);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        // è®¾ç½®çº¹ç†ç¯ç»•æ–¹å¼
-        glTextureParameteri(texture, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTextureParameteri(texture, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        // è®¾ç½®çº¹ç†è¿‡æ»¤æ–¹å¼
-        glTextureParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTextureParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        // çº¹ç†è´´å›¾
-        int width, height, nChannels;
-        unsigned char *textureData = stbi_load(imageFile, &width, &height, &nChannels, 0);
-        if (textureData)
-        {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
-            glGenerateMipmap(GL_TEXTURE_2D);
-            // é‡Šæ”¾è´´å›¾å†…å­˜
-            stbi_image_free(textureData);
-        }
-        else
-        {
-            cout << imageFile << endl;
-            cout << "è¯¥çº¹ç†è´´å›¾è½½å…¥å¤±è´¥!" << endl;
-        }
-    };
-    // è½½å…¥æ¼«åå°„ç‡è´´å›¾å’Œé•œé¢åå°„ç‡è´´å›¾
-    unsigned int texture0;
-    loadTexture(texture0, "D:/LearnOpenGL/src/diffuseMap.png", GL_TEXTURE0);
-    unsigned int texture1;
-    loadTexture(texture1, "D:/LearnOpenGL/src/specularMap.png", GL_TEXTURE1);
-    // è½½å…¥ç…§ç‰‡è´´å›¾
-    unsigned int texture2;
-    loadTexture(texture2, "D:/LearnOpenGL/textures/0.png", GL_TEXTURE2);
-    unsigned int texture3;
-    loadTexture(texture3, "D:/LearnOpenGL/textures/1.png", GL_TEXTURE3);
-    unsigned int texture4;
-    loadTexture(texture4, "D:/LearnOpenGL/textures/2.png", GL_TEXTURE4);
-    unsigned int texture5;
-    loadTexture(texture5, "D:/LearnOpenGL/textures/3.png", GL_TEXTURE5);
-    unsigned int texture6;
-    loadTexture(texture6, "D:/LearnOpenGL/textures/4.png", GL_TEXTURE6);
-    unsigned int texture7;
-    loadTexture(texture7, "D:/LearnOpenGL/textures/5.png", GL_TEXTURE7);
-    unsigned int texture8;
-    loadTexture(texture8, "D:/LearnOpenGL/textures/6.png", GL_TEXTURE8);
-    unsigned int texture9;
-    loadTexture(texture9, "D:/LearnOpenGL/textures/7.png", GL_TEXTURE9);
-    unsigned int texture10;
-    loadTexture(texture10, "D:/LearnOpenGL/textures/8.png", GL_TEXTURE10);
-    unsigned int texture11;
-    loadTexture(texture11, "D:/LearnOpenGL/textures/9.png", GL_TEXTURE11);
-    unsigned int texture12;
-    loadTexture(texture12, "D:/LearnOpenGL/textures/10.png", GL_TEXTURE12);
-    unsigned int texture13;
-    loadTexture(texture13, "D:/LearnOpenGL/textures/11.png", GL_TEXTURE13);
-    // ç»‘å®šé»˜è®¤vao
-    glBindVertexArray(0);
-    // å¼€å¯æ·±åº¦æµ‹è¯•
+    // Ä£ĞÍ×ÅÉ«Æ÷
+    Shader shader("../shader/model.vert", "../shader/model.frag");
+    cout << "×ÅÉ«Æ÷³õÊ¼»¯!" << endl;
+    // ÔØÈëÄ£ĞÍ
+    Model myModel("D:/LearnOpenGL/Model/nanosuit/nanosuit.obj");
+    // ¿ªÆôÉî¶È²âÊÔ
     glEnable(GL_DEPTH_TEST);
-    // é¼ æ ‡è¾“å…¥ç›¸å…³æ“ä½œ
+    // Êó±êÊäÈëÏà¹Ø²Ù×÷
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    // ç»˜åˆ¶ç‚¹å…‰æº
-    // å››ä¸ªç‚¹å…‰æºçš„ä½ç½®
-    vec3 pointlightPositions[] = {
-        vec3(0.7, 0.2, 2.0),
-        vec3(2.3, -3.3, -4.0),
-        vec3(-4.0, 2.0, -12.0),
-        vec3(0.0, 0.0, -3.0)};
-    // è®¡ç®—çƒé¢é¡¶ç‚¹
-    vector<float> sphereVertices;
-    float dxAngle = 2 * PI / X_SEGMENTS;
-    float dyAngle = PI / Y_SEGMENTS;
-    for (int i = 0; i <= Y_SEGMENTS; i++)
-    {
-        float y = cos(i * dyAngle);
-        for (int j = 0; j <= X_SEGMENTS; j++)
-        {
-            float x = sin(i * dyAngle) * cos(j * dxAngle);
-            float z = sin(i * dyAngle) * sin(j * dxAngle);
-            sphereVertices.push_back(x);
-            sphereVertices.push_back(y);
-            sphereVertices.push_back(z);
-        }
-    }
-    // è®¡ç®—çƒé¢ä¸‰è§’å¯¹åº”çš„é¡¶ç‚¹ç´¢å¼•
-    vector<int> sphereIndices;
-    for (int i = 0; i < Y_SEGMENTS; i++)
-    {
-        for (int j = 0; j < X_SEGMENTS; j++)
-        {
-            int index1 = i * (X_SEGMENTS + 1) + j;
-            int index2 = i * (X_SEGMENTS + 1) + j + 1;
-            int index3 = (i + 1) * (X_SEGMENTS + 1) + j;
-            int index4 = (i + 1) * (X_SEGMENTS + 1) + j + 1;
-            sphereIndices.push_back(index1);
-            sphereIndices.push_back(index2);
-            sphereIndices.push_back(index4);
-            sphereIndices.push_back(index1);
-            sphereIndices.push_back(index3);
-            sphereIndices.push_back(index4);
-        }
-    }
-    unsigned int lightVao;
-    glGenVertexArrays(1, &lightVao);
-    glBindVertexArray(lightVao);
-    unsigned int lightVbo;
-    glGenBuffers(1, &lightVbo);
-    glBindBuffer(GL_ARRAY_BUFFER, lightVbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GL_FLOAT) * sphereVertices.size(), &sphereVertices[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * sizeof(GL_FLOAT), 0);
-    glEnableVertexAttribArray(0);
-    unsigned int lightIbo;
-    glGenBuffers(1, &lightIbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lightIbo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GL_INT) * sphereIndices.size(), &sphereIndices[0], GL_STATIC_DRAW);
-    glBindVertexArray(0);
-    // å…‰æºç€è‰²å™¨
-    Shader lightShader("D:/LearnOpenGL/shader/light.vert", "D:/LearnOpenGL/shader/light.frag");
+    // »æÖÆµã¹âÔ´
+    // ËÄ¸öµã¹âÔ´µÄÎ»ÖÃ
+    // vec3 pointlightPositions[] = {
+    //     vec3(0.7, 0.2, 2.0),
+    //     vec3(2.3, -3.3, -4.0),
+    //     vec3(-4.0, 2.0, -12.0),
+    //     vec3(0.0, 0.0, -3.0)};
+    // // ¼ÆËãÇòÃæ¶¥µã
+    // vector<float> sphereVertices;
+    // float dxAngle = 2 * PI / X_SEGMENTS;
+    // float dyAngle = PI / Y_SEGMENTS;
+    // for (int i = 0; i <= Y_SEGMENTS; i++)
+    // {
+    //     float y = cos(i * dyAngle);
+    //     for (int j = 0; j <= X_SEGMENTS; j++)
+    //     {
+    //         float x = sin(i * dyAngle) * cos(j * dxAngle);
+    //         float z = sin(i * dyAngle) * sin(j * dxAngle);
+    //         sphereVertices.push_back(x);
+    //         sphereVertices.push_back(y);
+    //         sphereVertices.push_back(z);
+    //     }
+    // }
+    // // ¼ÆËãÇòÃæÈı½Ç¶ÔÓ¦µÄ¶¥µãË÷Òı
+    // vector<int> sphereIndices;
+    // for (int i = 0; i < Y_SEGMENTS; i++)
+    // {
+    //     for (int j = 0; j < X_SEGMENTS; j++)
+    //     {
+    //         int index1 = i * (X_SEGMENTS + 1) + j;
+    //         int index2 = i * (X_SEGMENTS + 1) + j + 1;
+    //         int index3 = (i + 1) * (X_SEGMENTS + 1) + j;
+    //         int index4 = (i + 1) * (X_SEGMENTS + 1) + j + 1;
+    //         sphereIndices.push_back(index1);
+    //         sphereIndices.push_back(index2);
+    //         sphereIndices.push_back(index4);
+    //         sphereIndices.push_back(index1);
+    //         sphereIndices.push_back(index3);
+    //         sphereIndices.push_back(index4);
+    //     }
+    // }
+    // unsigned int lightVao;
+    // glGenVertexArrays(1, &lightVao);
+    // glBindVertexArray(lightVao);
+    // unsigned int lightVbo;
+    // glGenBuffers(1, &lightVbo);
+    // glBindBuffer(GL_ARRAY_BUFFER, lightVbo);
+    // glBufferData(GL_ARRAY_BUFFER, sizeof(GL_FLOAT) * sphereVertices.size(), &sphereVertices[0], GL_STATIC_DRAW);
+    // glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * sizeof(GL_FLOAT), 0);
+    // glEnableVertexAttribArray(0);
+    // unsigned int lightIbo;
+    // glGenBuffers(1, &lightIbo);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lightIbo);
+    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GL_INT) * sphereIndices.size(), &sphereIndices[0], GL_STATIC_DRAW);
+    // glBindVertexArray(0);
+    // // ¹âÔ´×ÅÉ«Æ÷
+    // Shader lightShader("D:/LearnOpenGL/shader/light.vert", "D:/LearnOpenGL/shader/light.frag");
 
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        mat4 view, project;
+        mat4 view, project, model;
+        model = translate(model, vec3(0, 0, 0));
         view = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
         project = perspective(fov, (float)screenWidth / screenHeight, 0.1f, 100.0f);
-        lightShader.use();
-        glBindVertexArray(lightVao);
-        // ç»˜åˆ¶ç‚¹å…‰æº
-        for (int i = 0; i < 4; i++)
-        {
-            mat4 model;
-            model = translate(model, pointlightPositions[i]);
-            model = scale(model, vec3(0.1));
-            lightShader.setUniformMatrix4("model", model);
-            lightShader.setUniformMatrix4("view", view);
-            lightShader.setUniformMatrix4("project", project);
-            glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
-        }
-        // ç»˜åˆ¶ç‰©ä½“
-        glBindVertexArray(vao);
         shader.use();
-        // è®¾ç½®å…‰æºçš„ç›¸å…³å±æ€§
+        shader.setUniformMatrix4("model", model);
+        shader.setUniformMatrix4("view", view);
+        shader.setUniformMatrix4("project", project);
+        // lightShader.use();
+        // glBindVertexArray(lightVao);
+        // // »æÖÆµã¹âÔ´
+        // for (int i = 0; i < 4; i++)
+        // {
+        //     mat4 model;
+        //     model = translate(model, pointlightPositions[i]);
+        //     model = scale(model, vec3(0.1));
+        //     lightShader.setUniformMatrix4("model", model);
+        //     lightShader.setUniformMatrix4("view", view);
+        //     lightShader.setUniformMatrix4("project", project);
+        //     glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
+        // }
+        // »æÖÆÄ£ĞÍ
+        // glBindVertexArray(vao);
+        myModel.Draw(shader);
+        // // ÉèÖÃ¹âÔ´µÄÏà¹ØÊôĞÔ
         float currentTime = glfwGetTime();
-        /****åˆå§‹åŒ–èšæŸå…‰æº******/
-        PoiLight bunchedLight;
-        bunchedLight.position = cameraPos;
-        bunchedLight.specular = vec3(0.5, 0.5, 0.5);
-        bunchedLight.diffuse = vec3(1.0, 1.0, 1.0);
-        bunchedLight.ambient = vec3(0.02, 0.02, 0.02);
-        // è®¾ç½®å…‰æºéšè·ç¦»çš„è¡°å‡ç³»æ•°
-        bunchedLight.constant = 1.0;
-        bunchedLight.linear = 0.22;
-        bunchedLight.quadratic = 0.20;
-        // èšå…‰ï¼šå…‰æºä½ç½®ã€æ–¹å‘ã€å…‰åˆ‡è§’ã€å¤–å¹¿åˆ‡è§’
-        bunchedLight.direction = cameraFront;
-        bunchedLight.cutOff = cos(radians(10.0));
-        bunchedLight.outerCutOff = cos(radians(12.0));
-        shader.setUniformPoiLight("bunchedLight", bunchedLight);
-        /****åˆå§‹åŒ–å®šå‘å…‰æº******/
-        DirLight dirLight;
-        dirLight.direction = vec3(-0.2, -1.0, -0.3);
-        dirLight.ambient = vec3(0.005, 0.005, 0.005);
-        dirLight.diffuse = vec3(0.4, 0.4, 0.4);
-        dirLight.specular = vec3(0.5, 0.5, 0.5);
-        shader.setUniformDirLight("dirLight", dirLight);
-        /****åˆå§‹åŒ–ç‚¹å…‰æº******/
-        for (int i = 0; i < NR_POINT_LIGHTS; i++)
-        {
-            PoiLight poiLight;
-            poiLight.position = pointlightPositions[i];
-            poiLight.ambient = vec3(0.005, 0.005, 0.005);
-            poiLight.diffuse = vec3(0.8, 0.8, 0.8);
-            poiLight.specular = vec3(1.0, 1.0, 1.0);
-            poiLight.constant = 1.0;
-            poiLight.linear = 0.09;
-            poiLight.quadratic = 0.032;
-            char uniformName[1024];
-            sprintf(uniformName, "poiLights[%d]", i);
-            shader.setUniformPoiLight(uniformName, poiLight);
-        }
-        // è®¾ç½®æè´¨
-        Material material;
-        material.ambient = vec3(1.0, 0.5, 0.31);
-        // æ¼«åå°„è´´å›¾
-        material.diffuseMap = 0;
-        // é•œé¢åå°„è´´å›¾
-        material.specularMap = 1;
-        // åå…‰åº¦:é•œé¢åå°„çš„è¡°å‡ç³»æ•°
-        material.shininess = 3;
-        shader.setUniformMaterail("material", material);
-        // è®¾ç½®ç›¸æœºçš„ä½ç½®
-        shader.setUniformVec3("cameraPos", cameraPos);
-        float mixPercent = sin(currentTime);
-        shader.setUniformFloat("mixPercent", mixPercent);
-        for (int i = 0; i < 10; i++)
-        {
-            mat4 model_;
-            model_ = translate(model_, cubePositions[i]);
-            model_ = rotate(model_, currentTime+radians(i*10.0f), vec3(1, 1, 1));
-            shader.setUniformMatrix4("model", model_);
-            shader.setUniformMatrix4("view", view);
-            shader.setUniformMatrix4("project", project);
-            // è®¾ç½®ç‰‡æ®µç€è‰²å™¨ä¸­çš„æ³•çº¿çŸ©é˜µ
-            shader.setUniformMatrix3("normalMatrix", transpose(inverse(mat3(model_))));
-            for (int j = 0; j < 6; j++)
-            {
-                shader.setUniformInt("texture0", 2 * (j + 1));
-                shader.setUniformInt("texture1", 2 * (j + 1) + 1);
-                glDrawArrays(GL_TRIANGLES, j * 6, 6);
-            }
-        }
+        // /****³õÊ¼»¯¾ÛÊø¹âÔ´******/
+        // PoiLight bunchedLight;
+        // bunchedLight.position = cameraPos;
+        // bunchedLight.specular = vec3(0.5, 0.5, 0.5);
+        // bunchedLight.diffuse = vec3(1.0, 1.0, 1.0);
+        // bunchedLight.ambient = vec3(0.02, 0.02, 0.02);
+        // // ÉèÖÃ¹âÔ´Ëæ¾àÀëµÄË¥¼õÏµÊı
+        // bunchedLight.constant = 1.0;
+        // bunchedLight.linear = 0.22;
+        // bunchedLight.quadratic = 0.20;
+        // // ¾Û¹â£º¹âÔ´Î»ÖÃ¡¢·½Ïò¡¢¹âÇĞ½Ç¡¢Íâ¹ãÇĞ½Ç
+        // bunchedLight.direction = cameraFront;
+        // bunchedLight.cutOff = cos(radians(10.0));
+        // bunchedLight.outerCutOff = cos(radians(12.0));
+        // shader.setUniformPoiLight("bunchedLight", bunchedLight);
+        /****³õÊ¼»¯¶¨Ïò¹âÔ´******/
+        // DirLight dirLight;
+        // dirLight.direction = vec3(-0.2, -1.0, -0.3);
+        // dirLight.ambient = vec3(0.005, 0.005, 0.005);
+        // dirLight.diffuse = vec3(0.4, 0.4, 0.4);
+        // dirLight.specular = vec3(0.5, 0.5, 0.5);
+        // shader.setUniformDirLight("dirLight", dirLight);
+        // /****³õÊ¼»¯µã¹âÔ´******/
+        // for (int i = 0; i < NR_POINT_LIGHTS; i++)
+        // {
+        //     PoiLight poiLight;
+        //     poiLight.position = pointlightPositions[i];
+        //     poiLight.ambient = vec3(0.005, 0.005, 0.005);
+        //     poiLight.diffuse = vec3(0.8, 0.8, 0.8);
+        //     poiLight.specular = vec3(1.0, 1.0, 1.0);
+        //     poiLight.constant = 1.0;
+        //     poiLight.linear = 0.09;
+        //     poiLight.quadratic = 0.032;
+        //     char uniformName[1024];
+        //     sprintf(uniformName, "poiLights[%d]", i);
+        //     shader.setUniformPoiLight(uniformName, poiLight);
+        // }
+        // ÉèÖÃ²ÄÖÊ
+        // Material material;
+        // material.ambient = vec3(1.0, 0.5, 0.31);
+        // // Âş·´ÉäÌùÍ¼
+        // material.diffuseMap = 0;
+        // // ¾µÃæ·´ÉäÌùÍ¼
+        // material.specularMap = 1;
+        // // ·´¹â¶È:¾µÃæ·´ÉäµÄË¥¼õÏµÊı
+        // material.shininess = 3;
+        // shader.setUniformMaterail("material", material);
+        // ÉèÖÃÏà»úµÄÎ»ÖÃ
+        // shader.setUniformVec3("cameraPos", cameraPos);
+        // float mixPercent = sin(currentTime);
+        // shader.setUniformFloat("mixPercent", mixPercent);
+        // for (int i = 0; i < 10; i++)
+        // {
+        //     mat4 model_;
+        //     model_ = translate(model_, cubePositions[i]);
+        //     model_ = rotate(model_, currentTime + radians(i * 10.0f), vec3(1, 1, 1));
+        //     shader.setUniformMatrix4("model", model_);
+        //     shader.setUniformMatrix4("view", view);
+        //     shader.setUniformMatrix4("project", project);
+        //     // ÉèÖÃÆ¬¶Î×ÅÉ«Æ÷ÖĞµÄ·¨Ïß¾ØÕó
+        //     shader.setUniformMatrix3("normalMatrix", transpose(inverse(mat3(model_))));
+        //     for (int j = 0; j < 6; j++)
+        //     {
+        //         shader.setUniformInt("texture0", 2 * (j + 1));
+        //         shader.setUniformInt("texture1", 2 * (j + 1) + 1);
+        //         glDrawArrays(GL_TRIANGLES, j * 6, 6);
+        //     }
+        // }
         glfwSwapBuffers(window);
         deltaTime = currentTime - lastTime;
         lastTime = currentTime;
         glfwPollEvents();
     }
-
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
     shader.destroy();
     glfwTerminate();
     return 0;

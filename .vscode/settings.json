@@ -54,5 +54,6 @@
 		"set": "cpp",
 		"string_view": "cpp"
 	},
-	"C_Cpp.errorSquiggles": "disabled"
+	"C_Cpp.errorSquiggles": "disabled",
+	"files.encoding": "gbk"
 }

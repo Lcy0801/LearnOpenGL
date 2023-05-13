@@ -47,6 +47,8 @@ public:
     unsigned int ID;
     Shader(const char *vertexFile, const char *fragFile)
     {
+        std::cout << vertexFile << std::endl;
+        std::cout << fragFile << std::endl;
         std::ifstream vertexIFS, fragIFS;
         vertexIFS.exceptions(std::ifstream::failbit | std::ifstream::badbit);
         fragIFS.exceptions(std::ifstream::failbit | std::ifstream::badbit);
@@ -62,7 +64,8 @@ public:
         }
         catch (std::ifstream::failure e)
         {
-            std::cout << "ç€è‰²å™¨åˆå§‹åŒ–å¤±è´¥!" << std::endl;
+            std::cout << "×ÅÉ«Æ÷³õÊ¼»¯Ê§°Ü!" << std::endl;
+            return;
         }
         std::string vertexCode;
         std::string fragCode;
@@ -70,10 +73,10 @@ public:
         fragCode = fragSS.str();
         const char *vertexCode_ = vertexCode.c_str();
         const char *fragCode_ = fragCode.c_str();
-        // ç¼–è¯‘é“¾æŽ¥ç€è‰²å™¨
+        // ±àÒëÁ´½Ó×ÅÉ«Æ÷
         int flag;
         char infoLog[1024];
-        // é¡¶ç‚¹ç€è‰²å™¨
+        // ¶¥µã×ÅÉ«Æ÷
         unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertexShader, 1, &vertexCode_, nullptr);
         glCompileShader(vertexShader);
@@ -81,11 +84,11 @@ public:
         if (!flag)
         {
             glGetShaderInfoLog(vertexShader, 1024, nullptr, infoLog);
-            std::cout << "é¡¶ç‚¹ç€è‰²å™¨ç¼–è¯‘å¤±è´¥!" << std::endl;
+            std::cout << "¶¥µã×ÅÉ«Æ÷±àÒëÊ§°Ü!" << std::endl;
             std::cout << infoLog << std::endl;
             exit(-1);
         }
-        // ç‰‡æ®µç€è‰²å™¨
+        // Æ¬¶Î×ÅÉ«Æ÷
         unsigned int fragShader;
         fragShader = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragShader, 1, &fragCode_, nullptr);
@@ -94,11 +97,11 @@ public:
         if (!flag)
         {
             glGetShaderInfoLog(fragShader, 1024, nullptr, infoLog);
-            std::cout << "ç‰‡æ®µç€è‰²å™¨ç¼–è¯‘å¤±è´¥!" << std::endl;
+            std::cout << "Æ¬¶Î×ÅÉ«Æ÷±àÒëÊ§°Ü!" << std::endl;
             std::cout << infoLog << std::endl;
             exit(-1);
         }
-        // ç€è‰²å™¨ç¨‹åº
+        // ×ÅÉ«Æ÷³ÌÐò
         ID = glCreateProgram();
         glAttachShader(ID, vertexShader);
         glAttachShader(ID, fragShader);
@@ -107,7 +110,7 @@ public:
         if (!flag)
         {
             glGetProgramInfoLog(ID, 1024, nullptr, infoLog);
-            std::cout << "ç€è‰²å™¨é“¾æŽ¥å¤±è´¥!" << std::endl;
+            std::cout << "×ÅÉ«Æ÷Á´½ÓÊ§°Ü!" << std::endl;
             std::cout << infoLog << std::endl;
             exit(-1);
         }
@@ -127,7 +130,7 @@ public:
         }
         else
         {
-            std::cout << uniformName << "ä¸å­˜åœ¨!" << std::endl;
+            std::cout << uniformName << "²»´æÔÚ!" << std::endl;
         }
     }
     void setUniformInt(const std::string &uniformName, int uniformValue)
@@ -139,7 +142,7 @@ public:
         }
         else
         {
-            std::cout << uniformName << "ä¸å­˜åœ¨!" << std::endl;
+            std::cout << uniformName << "²»´æÔÚ!" << std::endl;
         }
     }
     void setUniformFloat(const std::string &uniformName, float uniformValue)
@@ -151,7 +154,7 @@ public:
         }
         else
         {
-            std::cout << uniformName << "ä¸å­˜åœ¨!" << std::endl;
+            std::cout << uniformName << "²»´æÔÚ!" << std::endl;
         }
     }
     void setUniformVec3(const std::string &uniformName, const glm::vec3 &uniformValue)
@@ -163,7 +166,7 @@ public:
         }
         else
         {
-            std::cout << uniformName << "ä¸å­˜åœ¨!" << std::endl;
+            std::cout << uniformName << "²»´æÔÚ!" << std::endl;
         }
     }
     void setUniformMatrix4(const std::string &uniformName, const glm::mat4 &uniformValue)
@@ -175,7 +178,7 @@ public:
         }
         else
         {
-            std::cout << uniformName << "ä¸å­˜åœ¨!" << std::endl;
+            std::cout << uniformName << "²»´æÔÚ!" << std::endl;
         }
     }
     void setUniformMatrix3(const std::string &uniformName, const glm::mat3 &uniformValue)
@@ -187,7 +190,7 @@ public:
         }
         else
         {
-            std::cout << uniformName << "ä¸å­˜åœ¨!" << std::endl;
+            std::cout << uniformName << "²»´æÔÚ!" << std::endl;
         }
     }
 
@@ -247,7 +250,7 @@ public:
     {
         std::string ambient = uniformName + ".ambient";
         setUniformVec3(ambient, material.ambient);
-        if(material.diffuseMap!=-1)
+        if (material.diffuseMap != -1)
         {
             std::string diffuseMap = uniformName + ".diffuseMap";
             setUniformInt(diffuseMap, material.diffuseMap);
@@ -257,14 +260,14 @@ public:
             std::string diffuse = uniformName + ".diffuse";
             setUniformVec3(diffuse, material.diffuse);
         }
-        if(material.specularMap!=-1)
+        if (material.specularMap != -1)
         {
-            std::string specularMap = uniformName+".specularMap";
+            std::string specularMap = uniformName + ".specularMap";
             setUniformInt(specularMap, material.specularMap);
         }
         else
         {
-            std::string specualr = uniformName+".specular";
+            std::string specualr = uniformName + ".specular";
             setUniformVec3(specualr, material.specular);
         }
         std::string shininess = uniformName + ".shininess";
