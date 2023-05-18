@@ -28,13 +28,13 @@ using namespace glm;
 #define NR_POINT_LIGHTS 4
 
 // 定义相机参数相关的全局变量
-vec3 cameraPos = vec3(0, 0, 3);
+vec3 cameraPos = vec3(0, 1, 2);
 float cameraSpeed = 5;
 // 视场大小
 // 变小会产生放大的效果 变大会产生缩小的效果
 float fov = 45;
 // 相机欧拉角
-float yaw_ = 90.0, pitch_ = 0.0;
+float yaw_ = 90.0, pitch_ = -20;
 // 相邻两帧的时间间隔 用于平衡不同性能机器渲染时相机的移动速度
 float sensitivity = 0.05;
 Camera camera(cameraPos, yaw_, pitch_, cameraSpeed, sensitivity, fov);
@@ -120,7 +120,7 @@ int main()
     vec3 pointlightPositions[] = {vec3(3, 0, 3), vec3(-3, 0, -3), vec3(3, 12, -3), vec3(-3, 12, 3)};
     // 开启深度测试
     glEnable(GL_DEPTH_TEST);
-
+    glDepthFunc(GL_LESS);
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);

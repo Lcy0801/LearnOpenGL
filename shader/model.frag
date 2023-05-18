@@ -118,5 +118,4 @@ void main()
     // // พÛส๘นโ
     fragRes +=calPointLight(bunchedLight,fragNormalW,viewDir);
     fragColor = vec4(fragRes,1);
-    // fragColor = vec4(1,1,1,1);
 }
