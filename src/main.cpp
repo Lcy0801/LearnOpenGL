@@ -115,7 +115,10 @@ int main()
     Shader shader("../shader/model.vert", "../shader/model.frag");
     cout << "着色器初始化!" << endl;
     // 载入模型
-    Model myModel("D:/LearnOpenGL/Model/MyModel/blender_demo.obj");
+    Model floorModel("D:/LearnOpenGL/Model/MyModel/floor.obj");
+    Model metalModel("D:/LearnOpenGL/Model/MyModel/metalSphere.obj");
+    Model cubeModel("D:/LearnOpenGL/Model/MyModel/graniteCube.obj");
+    Model cuboidModel("D:/LearnOpenGL/Model/MyModel/graniteCuboid.obj");
     // 四个点光源的位置
     vec3 pointlightPositions[] = {vec3(3, 0, 3), vec3(-3, 0, -3), vec3(3, 12, -3), vec3(-3, 12, 3)};
     // 开启深度测试
@@ -186,7 +189,10 @@ int main()
         shader.setUniformVec3("material.ambient", vec3(0.5, 0.5, 0.5));
         // 反光度
         shader.setUniformInt("material.shininess", 3);
-        myModel.Draw(shader);
+        floorModel.Draw(shader);
+        metalModel.Draw(shader);
+        cubeModel.Draw(shader);
+        cuboidModel.Draw(shader);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

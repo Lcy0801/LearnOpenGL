@@ -69,7 +69,7 @@ vec3 calcDirLight(DirLight dirLight,vec3 fragNormalW,vec3 viewDir)
     // æµ√Ê∑¥…‰
     vec3 h = normalize(viewDir-dirLight.direction);
     vec3 specularRes = dirLight.specular*vec3(texture(material.specularMap_1,fragTextcoord))*pow(max(dot(h,fragNormalW),0),material.shininess);
-    vec3 dirLightRes = ambientRes+diffuseRes+specularRes;
+    vec3 dirLightRes = ambientRes+diffuseRes;
     return dirLightRes;
 }
 
@@ -98,7 +98,7 @@ vec3 calPointLight(PointLight poiLight,vec3 fragNormalW,vec3 viewDir)
         intensity = (theta-poiLight.outerCutOff)/(poiLight.cutOff-poiLight.outerCutOff);
         intensity = clamp(intensity,0,1);
     }
-    vec3 poiLightRes = ambientRes+diffuseRes*intensity+specularRes*intensity;
+    vec3 poiLightRes = ambientRes+diffuseRes*intensity;
     return poiLightRes;
 }
 
