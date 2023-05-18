@@ -116,7 +116,7 @@ int main()
     Shader shader("../shader/model.vert", "../shader/model.frag");
     cout << "着色器初始化!" << endl;
     // 载入模型
-    Model myModel("D:/LearnOpenGL/Model/jk/jk.obj");
+    Model myModel("D:/LearnOpenGL/Model/MyModel/blender_demo.obj");
     // 绘制点光源
     Sphere pointLightSphere(X_SEGMENTS, Y_SEGMENTS, RAIDUS);
     // 四个点光源的位置

@@ -188,6 +188,7 @@ private:
         auto loadTexture = [](const char *imageFile, std::string directory)
         {
             // 纹理
+            std::cout << imageFile << std::endl;
             unsigned int textureId;
             glGenTextures(1, &textureId);
             // 设置纹理环绕方式
