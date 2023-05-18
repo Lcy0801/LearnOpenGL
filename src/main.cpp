@@ -13,7 +13,6 @@
 #include <Shader.h>
 #include <Model.h>
 #include <Camera.h>
-#include <Sphere.h>
 using namespace std;
 using namespace glm;
 
@@ -30,7 +29,7 @@ using namespace glm;
 
 // 定义相机参数相关的全局变量
 vec3 cameraPos = vec3(0, 0, 3);
-float cameraSpeed = 10;
+float cameraSpeed = 5;
 // 视场大小
 // 变小会产生放大的效果 变大会产生缩小的效果
 float fov = 45;
@@ -117,12 +116,8 @@ int main()
     cout << "着色器初始化!" << endl;
     // 载入模型
     Model myModel("D:/LearnOpenGL/Model/MyModel/blender_demo.obj");
-    // 绘制点光源
-    Sphere pointLightSphere(X_SEGMENTS, Y_SEGMENTS, RAIDUS);
     // 四个点光源的位置
     vec3 pointlightPositions[] = {vec3(3, 0, 3), vec3(-3, 0, -3), vec3(3, 12, -3), vec3(-3, 12, 3)};
-    // 光源着色器
-    Shader lightShader("D:/LearnOpenGL/shader/light.vert", "D:/LearnOpenGL/shader/light.frag");
     // 开启深度测试
     glEnable(GL_DEPTH_TEST);
 
@@ -138,17 +133,6 @@ int main()
         mat4 view, project;
         view = lookAt(camera.m_cameraPos, camera.m_cameraPos + camera.m_cameraFront, camera.m_cameraUp);
         project = perspective(camera.m_fov, (float)screenWidth / screenHeight, 0.1f, 100.0f);
-        // 绘制点光源
-        lightShader.use();
-        lightShader.setUniformMatrix4("view", view);
-        lightShader.setUniformMatrix4("project", project);
-        for (int i = 0; i < NR_POINT_LIGHTS; i++)
-        {
-            mat4 pointLightModel;
-            pointLightModel = translate(pointLightModel, pointlightPositions[i]);
-            lightShader.setUniformMatrix4("model", pointLightModel);
-            pointLightSphere.Draw(lightShader);
-        }
         mat4 model;
         model = scale(model, vec3(0.1));
         shader.use();
