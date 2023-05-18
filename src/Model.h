@@ -79,29 +79,32 @@ public:
         m_textures = textures;
         setupMesh();
     }
-    void Draw(Shader shader)
+    void Draw(Shader shader,bool flag = true)
     {
         unsigned int diffsueNr = 1;
         unsigned int specularNr = 1;
         shader.use();
-        for (int i = 0; i < m_textures.size(); i++)
+        if(flag)
         {
-            glActiveTexture(GL_TEXTURE0 + i);
-            Texture texture = m_textures[i];
-            glBindTexture(GL_TEXTURE_2D, texture.id);
-            // 纹理对象在着色器中对应的采样器变量名称
-            std::string samplerName;
-            if (texture.type == DIFFUSE)
+            for (int i = 0; i < m_textures.size(); i++)
             {
-                samplerName = "material.diffuseMap_" + std::to_string(diffsueNr);
-                diffsueNr++;
+                glActiveTexture(GL_TEXTURE0 + i);
+                Texture texture = m_textures[i];
+                glBindTexture(GL_TEXTURE_2D, texture.id);
+                // 纹理对象在着色器中对应的采样器变量名称
+                std::string samplerName;
+                if (texture.type == DIFFUSE)
+                {
+                    samplerName = "material.diffuseMap_" + std::to_string(diffsueNr);
+                    diffsueNr++;
+                }
+                else if (texture.type == SPECULAR)
+                {
+                    samplerName = "material.specularMap_" + std::to_string(specularNr);
+                    specularNr++;
+                }
+                shader.setUniformInt(samplerName, i);
             }
-            else if (texture.type == SPECULAR)
-            {
-                samplerName = "material.specularMap_" + std::to_string(specularNr);
-                specularNr++;
-            }
-            shader.setUniformInt(samplerName, i);
         }
         glActiveTexture(GL_TEXTURE0);
         // 绘制网格
@@ -272,12 +275,12 @@ public:
     {
         loadModel(path);
     }
-    void Draw(Shader shader)
+    void Draw(Shader shader,bool flag = true)
     {
         // 绘制所有网格
         for (auto mesh : m_meshes)
         {
-            mesh.Draw(shader);
+            mesh.Draw(shader, flag);
         }
     }
 };

@@ -28,7 +28,7 @@ using namespace glm;
 #define NR_POINT_LIGHTS 4
 
 // 定义相机参数相关的全局变量
-vec3 cameraPos = vec3(0, 1, 2);
+vec3 cameraPos = vec3(0, 5, 10);
 float cameraSpeed = 5;
 // 视场大小
 // 变小会产生放大的效果 变大会产生缩小的效果
@@ -113,31 +113,33 @@ int main()
     glfwSetScrollCallback(window, scroll_back);
     // 模型着色器
     Shader shader("../shader/model.vert", "../shader/model.frag");
+    // 边界着色器
+    Shader borderShader("../shader/border.vert", "../shader/border.frag");
     cout << "着色器初始化!" << endl;
     // 载入模型
-    Model floorModel("D:/LearnOpenGL/Model/MyModel/floor.obj");
-    Model metalModel("D:/LearnOpenGL/Model/MyModel/metalSphere.obj");
     Model cubeModel("D:/LearnOpenGL/Model/MyModel/graniteCube.obj");
-    Model cuboidModel("D:/LearnOpenGL/Model/MyModel/graniteCuboid.obj");
     // 四个点光源的位置
     vec3 pointlightPositions[] = {vec3(3, 0, 3), vec3(-3, 0, -3), vec3(3, 12, -3), vec3(-3, 12, 3)};
     // 开启深度测试
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+    // 开启模板测试
+    glEnable(GL_STENCIL_TEST);
+
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
         glClearColor(0.0, 0.0, 0.0, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // 清楚帧缓冲、深度缓冲、模板缓冲
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         // 时间参数
         float currentTime = glfwGetTime();
         deltaTime = currentTime - lastTime;
         lastTime = currentTime;
-        mat4 view, project;
+        mat4 view, project, model;
+        model = translate(model, vec3(1, 1, 1));
         view = lookAt(camera.m_cameraPos, camera.m_cameraPos + camera.m_cameraFront, camera.m_cameraUp);
         project = perspective(camera.m_fov, (float)screenWidth / screenHeight, 0.1f, 100.0f);
-        mat4 model;
-        model = scale(model, vec3(0.1));
         shader.use();
         shader.setUniformMatrix4("model", model);
         shader.setUniformMatrix4("view", view);
@@ -189,10 +191,22 @@ int main()
         shader.setUniformVec3("material.ambient", vec3(0.5, 0.5, 0.5));
         // 反光度
         shader.setUniformInt("material.shininess", 3);
-        floorModel.Draw(shader);
-        metalModel.Draw(shader);
+        // 绘制物体
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glStencilFunc(GL_ALWAYS, 1, 0XFF);
         cubeModel.Draw(shader);
-        cuboidModel.Draw(shader);
+        // 绘制物体轮廓
+        borderShader.use();
+        model = scale(model, vec3(1.05));
+        borderShader.setUniformMatrix4("model", model);
+        borderShader.setUniformMatrix4("view", view);
+        borderShader.setUniformMatrix4("project", project);
+        borderShader.setUniformVec3("borderColor", vec3(0.04, 0.28, 0.26));
+        glDisable(GL_DEPTH_TEST);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        cubeModel.Draw(borderShader, false);
+        glEnable(GL_DEPTH_TEST);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
