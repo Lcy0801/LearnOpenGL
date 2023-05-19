@@ -189,7 +189,7 @@ int main()
     glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), (void *)(3 * sizeof(GL_FLOAT)));
     glBindVertexArray(0);
     // 加载纹理
-    auto loadTexture = [](const char *imageFile,GLenum TextureUnit)
+    auto loadTexture = [](const char *imageFile, GLenum TextureUnit)
     {
         // 纹理
         std::cout << imageFile << std::endl;
@@ -203,6 +203,7 @@ int main()
         glTextureParameteri(textureId, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         // 纹理贴图
         int width, height, nChannels;
+        // stbi_set_flip_vertically_on_load(true);
         unsigned char *textureData = stbi_load(imageFile, &width, &height, &nChannels, 0);
         if (textureData)
         {
@@ -235,8 +236,38 @@ int main()
         }
         return textureId;
     };
-    unsigned int planeTexture = loadTexture("D:/LearnOpenGL/textures/metal.png",GL_TEXTURE0);
-    unsigned int cubeTexture = loadTexture("D:/LearnOpenGL/textures/marble.jpg",GL_TEXTURE1);
+    unsigned int planeTexture = loadTexture("D:/LearnOpenGL/textures/metal.png", GL_TEXTURE0);
+    unsigned int cubeTexture = loadTexture("D:/LearnOpenGL/textures/marble.jpg", GL_TEXTURE1);
+    // 绘制透明平面
+    float transparentVertices[] = {
+        0.0f, 0.5f, 0.0f, 0.0f, 0.0f,
+        0.0f, -0.5f, 0.0f, 0.0f, 1.0f,
+        1.0f, -0.5f, 0.0f, 1.0f, 1.0f,
+
+        0.0f, 0.5f, 0.0f, 0.0f, 0.0f,
+        1.0f, -0.5f, 0.0f, 1.0f, 1.0f,
+        1.0f, 0.5f, 0.0f, 1.0f, 0.0f};
+    unsigned int transparentVao;
+    glGenVertexArrays(1, &transparentVao);
+    glBindVertexArray(transparentVao);
+    unsigned int transparentVbo;
+    glGenBuffers(1,&transparentVbo);
+    glBindBuffer(GL_ARRAY_BUFFER,transparentVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(transparentVertices), transparentVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), 0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), (void *)(3 * sizeof(GL_FLOAT)));
+    glBindVertexArray(0);
+    vector<vec3> vegetation;
+    vegetation.push_back(vec3(-1.5f, 0.0f, -0.48f));
+    vegetation.push_back(vec3(1.5f, 0.0f, 0.51f));
+    vegetation.push_back(vec3(0.0f, 0.0f, 0.7f));
+    vegetation.push_back(vec3(-0.3f, 0.0f, -2.3f));
+    vegetation.push_back(vec3(0.5f, 0.0f, -0.6f));
+    unsigned int grassTexture = loadTexture("D:/LearnOpenGL/textures/grass.png", GL_TEXTURE2);
+    glTextureParameteri(grassTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(grassTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     // 着色器
     Shader shader("D:/LearnOpenGL/shader/raw.vert", "D:/LearnOpenGL/shader/raw.frag");
     // 开启深度测试
@@ -266,13 +297,23 @@ int main()
         // 绘制立方体
         glBindVertexArray(cubeVao);
         shader.setUniformInt("textureUnit", 1);
-        mat4 modelCube1,modelCube2;
+        mat4 modelCube1, modelCube2;
         modelCube1 = translate(modelCube1, vec3(-1.0, 0.0, -1.0));
         shader.setUniformMatrix4("model", modelCube1);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         modelCube2 = translate(modelCube2, vec3(2.0, 0, 0));
         shader.setUniformMatrix4("model", modelCube2);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+        // 绘制透明
+        glBindVertexArray(transparentVao);
+        shader.setUniformInt("textureUnit", 2);
+        for (auto pos : vegetation)
+        {
+            mat4 modelVeg;
+            modelVeg = translate(modelVeg, pos);
+            shader.setUniformMatrix4("model", modelVeg);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+        }
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
