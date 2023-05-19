@@ -10,6 +10,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
+#include <map>
+#include <functional>
 #include <Shader.h>
 #include <Model.h>
 #include <Camera.h>
@@ -265,14 +267,20 @@ int main()
     vegetation.push_back(vec3(0.0f, 0.0f, 0.7f));
     vegetation.push_back(vec3(-0.3f, 0.0f, -2.3f));
     vegetation.push_back(vec3(0.5f, 0.0f, -0.6f));
-    unsigned int grassTexture = loadTexture("D:/LearnOpenGL/textures/grass.png", GL_TEXTURE2);
-    glTextureParameteri(grassTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(grassTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    unsigned int windowTexture = loadTexture("D:/LearnOpenGL/textures/window.png", GL_TEXTURE2);
+    glTextureParameteri(windowTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(windowTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     // 着色器
     Shader shader("D:/LearnOpenGL/shader/raw.vert", "D:/LearnOpenGL/shader/raw.frag");
     // 开启深度测试
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+    // 开启混合模式 正确绘制半透明物体
+    glEnable(GL_BLEND);
+    // 设置混合比例
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // 设置混合函数
+    glBlendEquation(GL_FUNC_ADD);
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
@@ -305,12 +313,20 @@ int main()
         shader.setUniformMatrix4("model", modelCube2);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         // 绘制透明
-        glBindVertexArray(transparentVao);
-        shader.setUniformInt("textureUnit", 2);
+        // 计算透明物体到相机镜头的距离
+        map<double,vec3,greater<double>> dists;
         for (auto pos : vegetation)
         {
+            double dist = distance(camera.m_cameraPos, pos);
+            dists.insert(make_pair(dist, pos));
+        }
+        greater
+        glBindVertexArray(transparentVao);
+        shader.setUniformInt("textureUnit", 2);
+        for (auto item : dists)
+        {
             mat4 modelVeg;
-            modelVeg = translate(modelVeg, pos);
+            modelVeg = translate(modelVeg, item.second);
             shader.setUniformMatrix4("model", modelVeg);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
