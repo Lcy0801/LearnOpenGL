@@ -28,7 +28,7 @@ using namespace glm;
 #define NR_POINT_LIGHTS 4
 
 // 定义相机参数相关的全局变量
-vec3 cameraPos = vec3(0, 1, 2);
+vec3 cameraPos = vec3(0, 0, 3);
 float cameraSpeed = 5;
 // 视场大小
 // 变小会产生放大的效果 变大会产生缩小的效果
@@ -111,13 +111,133 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_back);
-    // 模型着色器
-    Shader shader("../shader/model.vert", "../shader/model.frag");
-    cout << "着色器初始化!" << endl;
-    // 载入模型
-    Model myModel("D:/LearnOpenGL/Model/MyModel/blender_demo.obj");
-    // 四个点光源的位置
-    vec3 pointlightPositions[] = {vec3(3, 0, 3), vec3(-3, 0, -3), vec3(3, 12, -3), vec3(-3, 12, 3)};
+    // 立方体坐标
+    float cubeVertices[] = {
+        // positions          // texture Coords
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f};
+    unsigned int cubeVao;
+    glGenVertexArrays(1, &cubeVao);
+    glBindVertexArray(cubeVao);
+    unsigned int cubVbo;
+    glGenBuffers(1, &cubVbo);
+    glBindBuffer(GL_ARRAY_BUFFER, cubVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), 0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), (void *)(3 * sizeof(GL_FLOAT)));
+    glBindVertexArray(0);
+    // 地面坐标
+    float planeVertices[] = {
+        5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
+        -5.0f, -0.5f, 5.0f, 0.0f, 0.0f,
+        -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
+
+        5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
+        -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
+        5.0f, -0.5f, -5.0f, 2.0f, 2.0f};
+    unsigned int planeVao;
+    glGenVertexArrays(1, &planeVao);
+    glBindVertexArray(planeVao);
+    unsigned int planeVbo;
+    glGenBuffers(1, &planeVbo);
+    glBindBuffer(GL_ARRAY_BUFFER, planeVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), 0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), (void *)(3 * sizeof(GL_FLOAT)));
+    glBindVertexArray(0);
+    // 加载纹理
+    auto loadTexture = [](const char *imageFile)
+    {
+        // 纹理
+        std::cout << imageFile << std::endl;
+        unsigned int textureId;
+        glGenTextures(1, &textureId);
+        // 设置纹理环绕方式
+        glTextureParameteri(textureId, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTextureParameteri(textureId, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        // 设置纹理过滤方式
+        glTextureParameteri(textureId, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTextureParameteri(textureId, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        // 纹理贴图
+        int width, height, nChannels;
+        unsigned char *textureData = stbi_load(imageFile, &width, &height, &nChannels, 0);
+        if (textureData)
+        {
+            GLenum format;
+            if (nChannels == 1)
+            {
+                format = GL_RED;
+            }
+            else if (nChannels == 3)
+            {
+                format = GL_RGB;
+            }
+            else if (nChannels == 4)
+            {
+                format = GL_RGBA;
+            }
+            // 绑定纹理
+            glBindTexture(GL_TEXTURE_2D, textureId);
+            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, textureData);
+            glGenerateMipmap(GL_TEXTURE_2D);
+            // 释放贴图内存
+            stbi_image_free(textureData);
+        }
+        else
+        {
+            std::cout << imageFile << std::endl;
+            std::cout << "该纹理贴图载入失败!" << std::endl;
+            stbi_image_free(textureData);
+        }
+        return textureId;
+    };
+    unsigned int cubeTexture = loadTexture("D:/LearnOpenGL/textures/marble.jpg");
+    unsigned int planeTexture = loadTexture("D:/LearnOpenGL/textures/metal.png");
+    // 着色器
+    Shader shader("D:/LearnOpenGL/shader/raw.vert", "D:/LearnOpenGL/shader/raw.frag");
     // 开启深度测试
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -133,64 +253,30 @@ int main()
         mat4 view, project;
         view = lookAt(camera.m_cameraPos, camera.m_cameraPos + camera.m_cameraFront, camera.m_cameraUp);
         project = perspective(camera.m_fov, (float)screenWidth / screenHeight, 0.1f, 100.0f);
-        mat4 model;
-        model = scale(model, vec3(0.1));
         shader.use();
-        shader.setUniformMatrix4("model", model);
         shader.setUniformMatrix4("view", view);
         shader.setUniformMatrix4("project", project);
-        // 设置光源的相关属性
-        /****初始化聚束光源******/
-        PoiLight bunchedLight;
-        bunchedLight.position = camera.m_cameraPos;
-        bunchedLight.specular = vec3(0.5, 0.5, 0.5);
-        bunchedLight.diffuse = vec3(1.0, 1.0, 1.0);
-        bunchedLight.ambient = vec3(0.002, 0.002, 0.002);
-        // 设置光源随距离的衰减系数
-        bunchedLight.constant = 1.0;
-        bunchedLight.linear = 0.09;
-        bunchedLight.quadratic = 0.032;
-        // 聚光：光源位置、方向、光切角、外广切角
-        bunchedLight.direction = camera.m_cameraFront;
-        bunchedLight.cutOff = cos(radians(10.0));
-        bunchedLight.outerCutOff = cos(radians(12.0));
-        shader.setUniformPoiLight("bunchedLight", bunchedLight);
-        /****初始化定向光源******/
-        DirLight dirLight;
-        dirLight.direction = vec3(-0.2, -1.0, -0.3);
-        dirLight.ambient = vec3(0.005, 0.005, 0.005);
-        dirLight.diffuse = vec3(0.4, 0.4, 0.4);
-        dirLight.specular = vec3(0.5, 0.5, 0.5);
-        shader.setUniformDirLight("dirLight", dirLight);
-        /****初始化点光源******/
-        for (int i = 0; i < NR_POINT_LIGHTS; i++)
-        {
-            PoiLight poiLight;
-            poiLight.position = pointlightPositions[i];
-            poiLight.ambient = vec3(0.005, 0.005, 0.005);
-            poiLight.diffuse = vec3(0.8, 0.8, 0.8);
-            poiLight.specular = vec3(1.0, 1.0, 1.0);
-            poiLight.constant = 1.0;
-            poiLight.linear = 0.09;
-            poiLight.quadratic = 0.032;
-            char uniformName[1024];
-            sprintf(uniformName, "poiLights[%d]", i);
-            shader.setUniformPoiLight(uniformName, poiLight);
-        }
-        // 设置相机的位置
-        shader.setUniformVec3("cameraPos", cameraPos);
-        // 法线矩阵
-        shader.setUniformMatrix3("normalMatrix", transpose(inverse(mat3(model))));
-        // 设置贴图以外材质参数
-        // 环境光反射率
-        shader.setUniformVec3("material.ambient", vec3(0.5, 0.5, 0.5));
-        // 反光度
-        shader.setUniformInt("material.shininess", 3);
-        myModel.Draw(shader);
+        // 绘制地面
+        
+        mat4 modelPlanglBindVertexArray(planeVao);e;
+        shader.setUniformMatrix4("model", modelPlane);
+        shader.setUniformInt("textureUnit", planeTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        // 绘制立方体
+        glBindVertexArray(cubeVao);
+        shader.setUniformInt("textureUnit", cubeTexture);
+        mat4 modelCube1,modelCube2;
+        modelCube1 = translate(modelCube1, vec3(-1.0, 0.0, -1.0));
+        shader.setUniformMatrix4("model", modelCube1);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        modelCube2 = translate(modelCube2, vec3(2.0, 0, 0));
+        shader.setUniformMatrix4("model", modelCube2);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
     shader.destroy();
+    glBindVertexArray(0);
     glfwTerminate();
     return 0;
 }
