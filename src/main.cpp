@@ -189,7 +189,7 @@ int main()
     glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), (void *)(3 * sizeof(GL_FLOAT)));
     glBindVertexArray(0);
     // 加载纹理
-    auto loadTexture = [](const char *imageFile)
+    auto loadTexture = [](const char *imageFile,GLenum TextureUnit)
     {
         // 纹理
         std::cout << imageFile << std::endl;
@@ -220,6 +220,7 @@ int main()
                 format = GL_RGBA;
             }
             // 绑定纹理
+            glActiveTexture(TextureUnit);
             glBindTexture(GL_TEXTURE_2D, textureId);
             glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, textureData);
             glGenerateMipmap(GL_TEXTURE_2D);
@@ -234,8 +235,8 @@ int main()
         }
         return textureId;
     };
-    unsigned int cubeTexture = loadTexture("D:/LearnOpenGL/textures/marble.jpg");
-    unsigned int planeTexture = loadTexture("D:/LearnOpenGL/textures/metal.png");
+    unsigned int planeTexture = loadTexture("D:/LearnOpenGL/textures/metal.png",GL_TEXTURE0);
+    unsigned int cubeTexture = loadTexture("D:/LearnOpenGL/textures/marble.jpg",GL_TEXTURE1);
     // 着色器
     Shader shader("D:/LearnOpenGL/shader/raw.vert", "D:/LearnOpenGL/shader/raw.frag");
     // 开启深度测试
@@ -257,14 +258,14 @@ int main()
         shader.setUniformMatrix4("view", view);
         shader.setUniformMatrix4("project", project);
         // 绘制地面
-        
-        mat4 modelPlanglBindVertexArray(planeVao);e;
+        glBindVertexArray(planeVao);
+        mat4 modelPlane;
         shader.setUniformMatrix4("model", modelPlane);
-        shader.setUniformInt("textureUnit", planeTexture);
+        shader.setUniformInt("textureUnit", 0);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         // 绘制立方体
         glBindVertexArray(cubeVao);
-        shader.setUniformInt("textureUnit", cubeTexture);
+        shader.setUniformInt("textureUnit", 1);
         mat4 modelCube1,modelCube2;
         modelCube1 = translate(modelCube1, vec3(-1.0, 0.0, -1.0));
         shader.setUniformMatrix4("model", modelCube1);
