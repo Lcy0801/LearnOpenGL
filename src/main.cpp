@@ -115,48 +115,48 @@ int main()
     glfwSetScrollCallback(window, scroll_back);
     // 立方体坐标
     float cubeVertices[] = {
-        // positions          // texture Coords
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-
-        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f};
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // Bottom-left
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,   // top-right
+        0.5f, -0.5f, -0.5f, 1.0f, 0.0f,  // bottom-right
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,   // top-right
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, // bottom-left
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,  // top-left
+        // Front face
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-left
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,  // bottom-right
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,   // top-right
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,   // top-right
+        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,  // top-left
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, // bottom-left
+        // Left face
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // top-right
+        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,  // top-left
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-left
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // bottom-left
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,  // bottom-right
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // top-right
+                                         // Right face
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,    // top-left
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,  // bottom-right
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,   // top-right
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,  // bottom-right
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,    // top-left
+        0.5f, -0.5f, 0.5f, 0.0f, 0.0f,   // bottom-left
+        // Bottom face
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // top-right
+        0.5f, -0.5f, -0.5f, 1.0f, 1.0f,  // top-left
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,   // bottom-left
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,   // bottom-left
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,  // bottom-right
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, // top-right
+        // Top face
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // top-left
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // bottom-right
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,  // top-right
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,   // bottom-right
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, // top-left
+        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f   // bottom-left
+    };
     unsigned int cubeVao;
     glGenVertexArrays(1, &cubeVao);
     glBindVertexArray(cubeVao);
@@ -164,27 +164,6 @@ int main()
     glGenBuffers(1, &cubVbo);
     glBindBuffer(GL_ARRAY_BUFFER, cubVbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), 0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), (void *)(3 * sizeof(GL_FLOAT)));
-    glBindVertexArray(0);
-    // 地面坐标
-    float planeVertices[] = {
-        5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
-        -5.0f, -0.5f, 5.0f, 0.0f, 0.0f,
-        -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
-
-        5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
-        -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
-        5.0f, -0.5f, -5.0f, 2.0f, 2.0f};
-    unsigned int planeVao;
-    glGenVertexArrays(1, &planeVao);
-    glBindVertexArray(planeVao);
-    unsigned int planeVbo;
-    glGenBuffers(1, &planeVbo);
-    glBindBuffer(GL_ARRAY_BUFFER, planeVbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), 0);
     glEnableVertexAttribArray(1);
@@ -238,49 +217,12 @@ int main()
         }
         return textureId;
     };
-    unsigned int planeTexture = loadTexture("D:/LearnOpenGL/textures/metal.png", GL_TEXTURE0);
     unsigned int cubeTexture = loadTexture("D:/LearnOpenGL/textures/marble.jpg", GL_TEXTURE1);
-    // 绘制透明平面
-    float transparentVertices[] = {
-        0.0f, 0.5f, 0.0f, 0.0f, 0.0f,
-        0.0f, -0.5f, 0.0f, 0.0f, 1.0f,
-        1.0f, -0.5f, 0.0f, 1.0f, 1.0f,
-
-        0.0f, 0.5f, 0.0f, 0.0f, 0.0f,
-        1.0f, -0.5f, 0.0f, 1.0f, 1.0f,
-        1.0f, 0.5f, 0.0f, 1.0f, 0.0f};
-    unsigned int transparentVao;
-    glGenVertexArrays(1, &transparentVao);
-    glBindVertexArray(transparentVao);
-    unsigned int transparentVbo;
-    glGenBuffers(1,&transparentVbo);
-    glBindBuffer(GL_ARRAY_BUFFER,transparentVbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(transparentVertices), transparentVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), 0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), (void *)(3 * sizeof(GL_FLOAT)));
-    glBindVertexArray(0);
-    vector<vec3> vegetation;
-    vegetation.push_back(vec3(-1.5f, 0.0f, -0.48f));
-    vegetation.push_back(vec3(1.5f, 0.0f, 0.51f));
-    vegetation.push_back(vec3(0.0f, 0.0f, 0.7f));
-    vegetation.push_back(vec3(-0.3f, 0.0f, -2.3f));
-    vegetation.push_back(vec3(0.5f, 0.0f, -0.6f));
-    unsigned int windowTexture = loadTexture("D:/LearnOpenGL/textures/window.png", GL_TEXTURE2);
-    glTextureParameteri(windowTexture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(windowTexture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     // 着色器
     Shader shader("D:/LearnOpenGL/shader/raw.vert", "D:/LearnOpenGL/shader/raw.frag");
-    // 开启深度测试
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    // 开启混合模式 正确绘制半透明物体
-    glEnable(GL_BLEND);
-    // 设置混合比例
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // 设置混合函数
-    glBlendEquation(GL_FUNC_ADD);
+    // 开启面剔除
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
@@ -296,12 +238,6 @@ int main()
         shader.use();
         shader.setUniformMatrix4("view", view);
         shader.setUniformMatrix4("project", project);
-        // 绘制地面
-        glBindVertexArray(planeVao);
-        mat4 modelPlane;
-        shader.setUniformMatrix4("model", modelPlane);
-        shader.setUniformInt("textureUnit", 0);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
         // 绘制立方体
         glBindVertexArray(cubeVao);
         shader.setUniformInt("textureUnit", 1);
@@ -309,27 +245,6 @@ int main()
         modelCube1 = translate(modelCube1, vec3(-1.0, 0.0, -1.0));
         shader.setUniformMatrix4("model", modelCube1);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-        modelCube2 = translate(modelCube2, vec3(2.0, 0, 0));
-        shader.setUniformMatrix4("model", modelCube2);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        // 绘制透明
-        // 计算透明物体到相机镜头的距离
-        map<double,vec3,greater<double>> dists;
-        for (auto pos : vegetation)
-        {
-            double dist = distance(camera.m_cameraPos, pos);
-            dists.insert(make_pair(dist, pos));
-        }
-        greater
-        glBindVertexArray(transparentVao);
-        shader.setUniformInt("textureUnit", 2);
-        for (auto item : dists)
-        {
-            mat4 modelVeg;
-            modelVeg = translate(modelVeg, item.second);
-            shader.setUniformMatrix4("model", modelVeg);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-        }
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
