@@ -236,7 +236,7 @@ int main()
         return textureId;
     };
     unsigned int planeTexture = loadTexture("D:/LearnOpenGL/textures/metal.png", GL_TEXTURE0);
-    unsigned int cubeTexture = loadTexture("D:/LearnOpenGL/textures/marble.jpg", GL_TEXTURE1);
+    unsigned int cubeTexture = loadTexture("D:/LearnOpenGL/textures/box.png", GL_TEXTURE1);
     // 着色器
     Shader shader("D:/LearnOpenGL/shader/raw.vert", "D:/LearnOpenGL/shader/raw.frag");
     // 开启深度测试

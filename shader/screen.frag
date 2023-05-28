@@ -6,6 +6,7 @@ uniform sampler2D  textureUnit;
 out vec4 fragColor;
 void main()
 {
-    fragColor = vec4(vec3(1.0-texture(textureUnit,fragTextcoord)),1);
-    // fragColor = texture(textureUnit,fragTextcoord);
+    fragColor = texture(textureUnit,fragTextcoord);
+    float avgGray = 0.2126*fragColor.r+0.7152*fragColor.g+0.0722*fragColor.b;
+    fragColor = vec4(avgGray,avgGray,avgGray,1);
 }
