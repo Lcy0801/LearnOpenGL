@@ -189,7 +189,7 @@ int main()
     glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), (void *)(3 * sizeof(GL_FLOAT)));
     glBindVertexArray(0);
     // 加载纹理
-    auto loadTexture = [](const char *imageFile,GLenum TextureUnit)
+    auto loadTexture = [](const char *imageFile, GLenum TextureUnit)
     {
         // 纹理
         std::cout << imageFile << std::endl;
@@ -235,22 +235,77 @@ int main()
         }
         return textureId;
     };
-    unsigned int planeTexture = loadTexture("D:/LearnOpenGL/textures/metal.png",GL_TEXTURE0);
-    unsigned int cubeTexture = loadTexture("D:/LearnOpenGL/textures/marble.jpg",GL_TEXTURE1);
+    unsigned int planeTexture = loadTexture("D:/LearnOpenGL/textures/metal.png", GL_TEXTURE0);
+    unsigned int cubeTexture = loadTexture("D:/LearnOpenGL/textures/marble.jpg", GL_TEXTURE1);
     // 着色器
     Shader shader("D:/LearnOpenGL/shader/raw.vert", "D:/LearnOpenGL/shader/raw.frag");
     // 开启深度测试
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+    // 帧缓冲相关操作
+    unsigned int fbo;
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    unsigned int fbTextureColor;
+    glGenTextures(1, &fbTextureColor);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, fbTextureColor);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, screenWidth, screenHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // 将纹理绑定至帧缓冲的颜色附件
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fbTextureColor, 0);
+    // 创建深度和模板渲染缓冲对象
+    unsigned int dsRbo;
+    glGenRenderbuffers(1, &dsRbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, dsRbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, screenWidth, screenHeight);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    // 将渲染缓冲对象绑定至帧缓冲的深度和模板附件
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, dsRbo);
+    // 检查帧缓冲对象的完整性
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        cout << "帧缓冲创建失败!" << endl;
+        return 0;
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // 后处理绘制
+    float screenVertices[] = {
+        -1, -1, 0, 0, 0,
+        1, -1, 0, 1, 0,
+        1, 1, 0, 1, 1,
+        -1, 1, 0, 0, 1};
+    unsigned int screenIndices[] = {0, 1, 2, 0, 2, 3};
+    unsigned int sVao;
+    glGenVertexArrays(1, &sVao);
+    glBindVertexArray(sVao);
+    unsigned int sVbo;
+    glGenBuffers(1, &sVbo);
+    glBindBuffer(GL_ARRAY_BUFFER, sVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(screenVertices), screenVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), 0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), (void *)(3 * sizeof(GL_FLOAT)));
+    glEnableVertexAttribArray(1);
+    unsigned int sIbo;
+    glGenBuffers(1, &sIbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sIbo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(screenIndices),screenIndices,GL_STATIC_DRAW);
+    Shader sShader("../shader/screen.vert", "../shader/screen.frag");
+    glBindVertexArray(0);
     while (!glfwWindowShouldClose(window))
     {
-        processInput(window);
-        glClearColor(0.0, 0.0, 0.0, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // 时间参数
         float currentTime = glfwGetTime();
         deltaTime = currentTime - lastTime;
         lastTime = currentTime;
+        processInput(window);
+        // 绑定创建的帧缓冲对象
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        glEnable(GL_DEPTH_TEST);
+        glClearColor(0.0, 0.0, 0.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         mat4 view, project;
         view = lookAt(camera.m_cameraPos, camera.m_cameraPos + camera.m_cameraFront, camera.m_cameraUp);
         project = perspective(camera.m_fov, (float)screenWidth / screenHeight, 0.1f, 100.0f);
@@ -266,17 +321,31 @@ int main()
         // 绘制立方体
         glBindVertexArray(cubeVao);
         shader.setUniformInt("textureUnit", 1);
-        mat4 modelCube1,modelCube2;
+        mat4 modelCube1, modelCube2;
         modelCube1 = translate(modelCube1, vec3(-1.0, 0.0, -1.0));
         shader.setUniformMatrix4("model", modelCube1);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         modelCube2 = translate(modelCube2, vec3(2.0, 0, 0));
         shader.setUniformMatrix4("model", modelCube2);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // 绑定默认的帧缓冲对象
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glDisable(GL_DEPTH_TEST);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        sShader.use();
+        sShader.setUniformInt("textureUnit",2);
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glBindVertexArray(sVao);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
     shader.destroy();
+    sShader.destroy();
+    // 删除帧缓冲
+    glDeleteFramebuffers(1, &fbo);
     glBindVertexArray(0);
     glfwTerminate();
     return 0;
