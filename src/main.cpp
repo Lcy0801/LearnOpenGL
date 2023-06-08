@@ -28,7 +28,7 @@ using namespace glm;
 #define NR_POINT_LIGHTS 4
 
 // 定义相机参数相关的全局变量
-vec3 cameraPos = vec3(0, 0, 3);
+vec3 cameraPos = vec3(0, 0, 0);
 float cameraSpeed = 5;
 // 视场大小
 // 变小会产生放大的效果 变大会产生缩小的效果
@@ -164,7 +164,7 @@ int main()
     imageFiles.push_back("../textures/skybox/bottom.jpg");
     imageFiles.push_back("../textures/skybox/back.jpg");
     imageFiles.push_back("../textures/skybox/front.jpg");
-    unsigned int cubeMap = loadCubeMap(imageFiles, GL_TEXTURE2);
+    unsigned int cubeMap = loadCubeMap(imageFiles, GL_TEXTURE0);
     // 绘制天空盒
     float skyboxVertices[] = {
         -0.5f, -0.5f, -0.5f, 
@@ -241,7 +241,7 @@ int main()
         sbShader.use();
         sbShader.setUniformMatrix4("view", view);
         sbShader.setUniformMatrix4("project", project);
-        // sbShader.setUniformInt("textureUnit", 2);
+        sbShader.setUniformInt("textureUnit", 0);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         // glDepthMask(GL_TRUE);
         glfwSwapBuffers(window);
