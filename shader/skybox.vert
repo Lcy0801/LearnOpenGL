@@ -9,5 +9,6 @@ uniform mat4 project;
 void main()
 {
     fragTextcoord = aPos;
-    gl_Position = project*view*vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    vec4 pos = project*view*vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    gl_Position = pos.xyww;
 }
