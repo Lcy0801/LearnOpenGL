@@ -85,7 +85,6 @@ void processInput(GLFWwindow *window)
 
 int main()
 {
-
     // 创建窗口
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -111,101 +110,27 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_back);
-    // 立方体坐标
-    float cubeVertices[] = {
-        // positions          // texture Coords
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-
-        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f};
-    unsigned int cubeVao;
-    glGenVertexArrays(1, &cubeVao);
-    glBindVertexArray(cubeVao);
-    unsigned int cubVbo;
-    glGenBuffers(1, &cubVbo);
-    glBindBuffer(GL_ARRAY_BUFFER, cubVbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), 0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), (void *)(3 * sizeof(GL_FLOAT)));
-    glBindVertexArray(0);
-    // 地面坐标
-    float planeVertices[] = {
-        5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
-        -5.0f, -0.5f, 5.0f, 0.0f, 0.0f,
-        -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
-
-        5.0f, -0.5f, 5.0f, 2.0f, 0.0f,
-        -5.0f, -0.5f, -5.0f, 0.0f, 2.0f,
-        5.0f, -0.5f, -5.0f, 2.0f, 2.0f};
-    unsigned int planeVao;
-    glGenVertexArrays(1, &planeVao);
-    glBindVertexArray(planeVao);
-    unsigned int planeVbo;
-    glGenBuffers(1, &planeVbo);
-    glBindBuffer(GL_ARRAY_BUFFER, planeVbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), 0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * sizeof(GL_FLOAT), (void *)(3 * sizeof(GL_FLOAT)));
-    glBindVertexArray(0);
-    // 加载纹理
-    auto loadTexture = [](const char *imageFile,GLenum TextureUnit)
+    // 立方体贴图加载函数
+    auto loadCubeMap = [](const vector<string> imageFiles, GLenum TextureUnit)
     {
-        // 纹理
-        std::cout << imageFile << std::endl;
-        unsigned int textureId;
-        glGenTextures(1, &textureId);
-        // 设置纹理环绕方式
-        glTextureParameteri(textureId, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTextureParameteri(textureId, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        // 设置纹理过滤方式
-        glTextureParameteri(textureId, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTextureParameteri(textureId, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        // 纹理贴图
-        int width, height, nChannels;
-        unsigned char *textureData = stbi_load(imageFile, &width, &height, &nChannels, 0);
-        if (textureData)
+        unsigned int cubMap;
+        glGenTextures(1, &cubMap);
+        glActiveTexture(TextureUnit);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubMap);
+        // 设置纹理参数
+        // 过滤内插方式
+        glTextureParameteri(cubMap, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTextureParameteri(cubMap, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        // 纹理环绕方式
+        glTextureParameteri(cubMap, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTextureParameteri(cubMap, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTextureParameteri(cubMap, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        int targetCubMapFace = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+        for (auto &imageFile : imageFiles)
         {
+            int width, height, nChannels;
+            unsigned char *imgData = nullptr;
+            imgData = stbi_load(imageFile.c_str(), &width, &height, &nChannels, 0);
             GLenum format;
             if (nChannels == 1)
             {
@@ -219,26 +144,82 @@ int main()
             {
                 format = GL_RGBA;
             }
-            // 绑定纹理
-            glActiveTexture(TextureUnit);
-            glBindTexture(GL_TEXTURE_2D, textureId);
-            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, textureData);
-            glGenerateMipmap(GL_TEXTURE_2D);
-            // 释放贴图内存
-            stbi_image_free(textureData);
+            if (imgData)
+            {
+                glTexImage2D(targetCubMapFace, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, imgData);
+                stbi_image_free(imgData);
+                targetCubMapFace++;
+            }
+            else
+            {
+                cout << imageFile << "纹理加载失败!" << endl;
+            }
         }
-        else
-        {
-            std::cout << imageFile << std::endl;
-            std::cout << "该纹理贴图载入失败!" << std::endl;
-            stbi_image_free(textureData);
-        }
-        return textureId;
+        return cubMap;
     };
-    unsigned int planeTexture = loadTexture("D:/LearnOpenGL/textures/metal.png",GL_TEXTURE0);
-    unsigned int cubeTexture = loadTexture("D:/LearnOpenGL/textures/marble.jpg",GL_TEXTURE1);
-    // 着色器
-    Shader shader("D:/LearnOpenGL/shader/raw.vert", "D:/LearnOpenGL/shader/raw.frag");
+    vector<string> imageFiles;
+    imageFiles.push_back("../textures/skybox/right.jpg");
+    imageFiles.push_back("../textures/skybox/left.jpg");
+    imageFiles.push_back("../textures/skybox/top.jpg");
+    imageFiles.push_back("../textures/skybox/bottom.jpg");
+    imageFiles.push_back("../textures/skybox/back.jpg");
+    imageFiles.push_back("../textures/skybox/front.jpg");
+    unsigned int cubeMap = loadCubeMap(imageFiles, GL_TEXTURE2);
+    // 绘制天空盒
+    float skyboxVertices[] = {
+        -0.5f, -0.5f, -0.5f, 
+        0.5f, -0.5f, -0.5f, 
+        0.5f, 0.5f, -0.5f,
+        0.5f, 0.5f, -0.5f, 
+        -0.5f, 0.5f, -0.5f, 
+        -0.5f, -0.5f, -0.5f,
+
+        -0.5f, -0.5f, 0.5f, 
+        0.5f, -0.5f, 0.5f, 
+        0.5f, 0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f,
+        -0.5f, 0.5f, 0.5f, 
+        -0.5f, -0.5f, 0.5f,
+
+        -0.5f, 0.5f, 0.5f, 
+        -0.5f, 0.5f, -0.5f, 
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, 0.5f, 
+        -0.5f, 0.5f, 0.5f, 
+
+        0.5f, 0.5f, 0.5f, 
+        0.5f, 0.5f, -0.5f, 
+        0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f, 
+        0.5f, -0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f,
+
+        -0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f, 
+        0.5f, -0.5f, 0.5f, 
+        0.5f, -0.5f, 0.5f, 
+        -0.5f, -0.5f, 0.5f,
+        -0.5f, -0.5f, -0.5f, 
+
+        -0.5f, 0.5f, -0.5f,
+        0.5f, 0.5f, -0.5f, 
+        0.5f, 0.5f, 0.5f, 
+        0.5f, 0.5f, 0.5f, 
+        -0.5f, 0.5f, 0.5f,
+        -0.5f, 0.5f, -0.5f};
+    unsigned int sbVao;
+    glGenVertexArrays(1, &sbVao);
+    glBindVertexArray(sbVao);
+    unsigned int sbVbo;
+    glGenBuffers(1, &sbVbo);
+    glBindBuffer(GL_ARRAY_BUFFER, sbVbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), 0);
+    glBindVertexArray(0);
+    // 天空盒着色器
+    Shader sbShader("D:/LearnOpenGL/shader/skybox.vert", "D:/LearnOpenGL/shader/skybox.frag");
     // 开启深度测试
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -254,30 +235,66 @@ int main()
         mat4 view, project;
         view = lookAt(camera.m_cameraPos, camera.m_cameraPos + camera.m_cameraFront, camera.m_cameraUp);
         project = perspective(camera.m_fov, (float)screenWidth / screenHeight, 0.1f, 100.0f);
-        shader.use();
-        shader.setUniformMatrix4("view", view);
-        shader.setUniformMatrix4("project", project);
-        // 绘制地面
-        glBindVertexArray(planeVao);
-        mat4 modelPlane;
-        shader.setUniformMatrix4("model", modelPlane);
-        shader.setUniformInt("textureUnit", 0);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        // 绘制立方体
-        glBindVertexArray(cubeVao);
-        shader.setUniformInt("textureUnit", 1);
-        mat4 modelCube1,modelCube2;
-        modelCube1 = translate(modelCube1, vec3(-1.0, 0.0, -1.0));
-        shader.setUniformMatrix4("model", modelCube1);
+        // 渲染天空盒 此时禁用深度写入保证天空盒在后续所有渲染的对象的后面
+        glBindVertexArray(sbVao);
+        // glDepthMask(GL_FALSE);
+        sbShader.use();
+        sbShader.setUniformMatrix4("view", view);
+        sbShader.setUniformMatrix4("project", project);
+        // sbShader.setUniformInt("textureUnit", 2);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-        modelCube2 = translate(modelCube2, vec3(2.0, 0, 0));
-        shader.setUniformMatrix4("model", modelCube2);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        // glDepthMask(GL_TRUE);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-    shader.destroy();
     glBindVertexArray(0);
     glfwTerminate();
     return 0;
 }
+
+unsigned int loadTexture(const char *imageFile, GLenum TextureUnit)
+{
+    // 纹理
+    std::cout << imageFile << std::endl;
+    unsigned int textureId;
+    glGenTextures(1, &textureId);
+    // 设置纹理环绕方式
+    glTextureParameteri(textureId, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(textureId, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // 设置纹理过滤方式
+    glTextureParameteri(textureId, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTextureParameteri(textureId, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // 纹理贴图
+    int width, height, nChannels;
+    unsigned char *textureData = stbi_load(imageFile, &width, &height, &nChannels, 0);
+    if (textureData)
+    {
+        GLenum format;
+        if (nChannels == 1)
+        {
+            format = GL_RED;
+        }
+        else if (nChannels == 3)
+        {
+            format = GL_RGB;
+        }
+        else if (nChannels == 4)
+        {
+            format = GL_RGBA;
+        }
+        // 绑定纹理
+        glActiveTexture(TextureUnit);
+        glBindTexture(GL_TEXTURE_2D, textureId);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, textureData);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        // 释放贴图内存
+        stbi_image_free(textureData);
+    }
+    else
+    {
+        std::cout << imageFile << std::endl;
+        std::cout << "该纹理贴图载入失败!" << std::endl;
+        stbi_image_free(textureData);
+    }
+    return textureId;
+};
