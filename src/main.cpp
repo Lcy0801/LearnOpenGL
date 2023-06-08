@@ -237,13 +237,13 @@ int main()
         project = perspective(camera.m_fov, (float)screenWidth / screenHeight, 0.1f, 100.0f);
         // 渲染天空盒 此时禁用深度写入保证天空盒在后续所有渲染的对象的后面
         glBindVertexArray(sbVao);
-        // glDepthMask(GL_FALSE);
+        glDepthMask(GL_FALSE);
         sbShader.use();
-        sbShader.setUniformMatrix4("view", view);
+        sbShader.setUniformMatrix4("view", mat4(mat3(view)));
         sbShader.setUniformMatrix4("project", project);
         sbShader.setUniformInt("textureUnit", 0);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-        // glDepthMask(GL_TRUE);
+        glDepthMask(GL_TRUE);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
