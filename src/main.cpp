@@ -164,48 +164,48 @@ int main()
     imageFiles.push_back("../textures/skybox/bottom.jpg");
     imageFiles.push_back("../textures/skybox/back.jpg");
     imageFiles.push_back("../textures/skybox/front.jpg");
-    unsigned int cubeMap = loadCubeMap(imageFiles, GL_TEXTURE0);
+    unsigned int cubeMap = loadCubeMap(imageFiles, GL_TEXTURE2);
     // 绘制天空盒
     float skyboxVertices[] = {
-        -0.5f, -0.5f, -0.5f, 
-        0.5f, -0.5f, -0.5f, 
+        -0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
         0.5f, 0.5f, -0.5f,
-        0.5f, 0.5f, -0.5f, 
-        -0.5f, 0.5f, -0.5f, 
+        0.5f, 0.5f, -0.5f,
+        -0.5f, 0.5f, -0.5f,
         -0.5f, -0.5f, -0.5f,
 
-        -0.5f, -0.5f, 0.5f, 
-        0.5f, -0.5f, 0.5f, 
+        -0.5f, -0.5f, 0.5f,
+        0.5f, -0.5f, 0.5f,
         0.5f, 0.5f, 0.5f,
         0.5f, 0.5f, 0.5f,
-        -0.5f, 0.5f, 0.5f, 
+        -0.5f, 0.5f, 0.5f,
         -0.5f, -0.5f, 0.5f,
 
-        -0.5f, 0.5f, 0.5f, 
-        -0.5f, 0.5f, -0.5f, 
+        -0.5f, 0.5f, 0.5f,
+        -0.5f, 0.5f, -0.5f,
         -0.5f, -0.5f, -0.5f,
         -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, 0.5f, 
-        -0.5f, 0.5f, 0.5f, 
+        -0.5f, -0.5f, 0.5f,
+        -0.5f, 0.5f, 0.5f,
 
-        0.5f, 0.5f, 0.5f, 
-        0.5f, 0.5f, -0.5f, 
+        0.5f, 0.5f, 0.5f,
+        0.5f, 0.5f, -0.5f,
         0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f, 
+        0.5f, -0.5f, -0.5f,
         0.5f, -0.5f, 0.5f,
         0.5f, 0.5f, 0.5f,
 
         -0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f, 
-        0.5f, -0.5f, 0.5f, 
-        0.5f, -0.5f, 0.5f, 
+        0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, 0.5f,
+        0.5f, -0.5f, 0.5f,
         -0.5f, -0.5f, 0.5f,
-        -0.5f, -0.5f, -0.5f, 
+        -0.5f, -0.5f, -0.5f,
 
         -0.5f, 0.5f, -0.5f,
-        0.5f, 0.5f, -0.5f, 
-        0.5f, 0.5f, 0.5f, 
-        0.5f, 0.5f, 0.5f, 
+        0.5f, 0.5f, -0.5f,
+        0.5f, 0.5f, 0.5f,
+        0.5f, 0.5f, 0.5f,
         -0.5f, 0.5f, 0.5f,
         -0.5f, 0.5f, -0.5f};
     unsigned int sbVao;
@@ -220,6 +220,9 @@ int main()
     glBindVertexArray(0);
     // 天空盒着色器
     Shader sbShader("D:/LearnOpenGL/shader/skybox.vert", "D:/LearnOpenGL/shader/skybox.frag");
+    // 加载模型
+    Model robotModel("D:/LearnOpenGL/Model/nanosuit/nanosuit.obj");
+    Shader modelShader("D:/LearnOpenGL/shader/model_cubmap.vert", "D:/LearnOpenGL/shader/model_cubmap.frag");
     // 开启深度测试
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -235,6 +238,17 @@ int main()
         mat4 view, project;
         view = lookAt(camera.m_cameraPos, camera.m_cameraPos + camera.m_cameraFront, camera.m_cameraUp);
         project = perspective(camera.m_fov, (float)screenWidth / screenHeight, 0.1f, 100.0f);
+        // 渲染模型
+        mat4 model;
+        model = scale(model,vec3(0.1));
+        modelShader.use();
+        modelShader.setUniformMatrix4("model",model);
+        modelShader.setUniformMatrix4("view",view);
+        modelShader.setUniformMatrix4("project",project);
+        modelShader.setUniformMatrix3("normalMatrix",transpose(inverse(mat3(model))));
+        modelShader.setUniformInt("skybox", 2);
+        modelShader.setUniformVec3("cameraPos", cameraPos);
+        robotModel.Draw(modelShader);
         // 渲染天空盒 此时禁用深度写入保证天空盒在后续所有渲染的对象的后面
         glBindVertexArray(sbVao);
         glDepthMask(GL_FALSE);
@@ -242,7 +256,7 @@ int main()
         sbShader.use();
         sbShader.setUniformMatrix4("view", mat4(mat3(view)));
         sbShader.setUniformMatrix4("project", project);
-        sbShader.setUniformInt("textureUnit", 0);
+        sbShader.setUniformInt("textureUnit", 2);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glDepthMask(GL_TRUE);
         glDepthFunc(GL_LESS);
