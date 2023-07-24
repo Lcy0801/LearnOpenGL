@@ -45,14 +45,15 @@ class Shader
 {
 public:
     unsigned int ID;
-    Shader(const char *vertexFile, const char *fragFile)
+    Shader(const char *vertexFile, const char *fragFile, const char *geometryFile = nullptr)
     {
         std::cout << vertexFile << std::endl;
         std::cout << fragFile << std::endl;
-        std::ifstream vertexIFS, fragIFS;
+        std::ifstream vertexIFS, fragIFS, geometryIFS;
         vertexIFS.exceptions(std::ifstream::failbit | std::ifstream::badbit);
         fragIFS.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-        std::stringstream vertexSS, fragSS;
+        geometryIFS.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+        std::stringstream vertexSS, fragSS, geometrySS;
         try
         {
             vertexIFS.open(vertexFile);
@@ -61,6 +62,12 @@ public:
             fragSS << fragIFS.rdbuf();
             vertexIFS.close();
             fragIFS.close();
+            if (geometryFile)
+            {
+                geometryIFS.open(geometryFile);
+                geometrySS << geometryIFS.rdbuf();
+                geometryIFS.close();
+            }
         }
         catch (std::ifstream::failure e)
         {
@@ -69,10 +76,13 @@ public:
         }
         std::string vertexCode;
         std::string fragCode;
+        std::string geometryCode;
         vertexCode = vertexSS.str();
         fragCode = fragSS.str();
+        geometryCode = geometryFile? geometrySS.str():"";
         const char *vertexCode_ = vertexCode.c_str();
         const char *fragCode_ = fragCode.c_str();
+        const char *geometryCode_ = geometryCode.length()? geometryCode.c_str() : nullptr;
         // 编译链接着色器
         int flag;
         char infoLog[1024];
@@ -87,6 +97,22 @@ public:
             std::cout << "顶点着色器编译失败!" << std::endl;
             std::cout << infoLog << std::endl;
             exit(-1);
+        }
+        // 几何着色器
+        unsigned int geometryShader;
+        if(geometryCode_)
+        {
+            geometryShader = glCreateShader(GL_GEOMETRY_SHADER);
+            glShaderSource(geometryShader, 1, &geometryCode_, nullptr);
+            glCompileShader(geometryShader);
+            glGetShaderiv(geometryShader,GL_COMPILE_STATUS,&flag);
+            if(!flag)
+            {
+                glGetShaderInfoLog(geometryShader,1024,nullptr,infoLog);
+                std::cout<<"几何着色器编译失败!"<<std::endl;
+                std::cout<<infoLog<<std::endl;
+                exit(-1);
+            }
         }
         // 片段着色器
         unsigned int fragShader;
@@ -104,6 +130,10 @@ public:
         // 着色器程序
         ID = glCreateProgram();
         glAttachShader(ID, vertexShader);
+        if(geometryCode_)
+        {
+            glAttachShader(ID, geometryShader);
+        }
         glAttachShader(ID, fragShader);
         glLinkProgram(ID);
         glGetProgramiv(ID, GL_LINK_STATUS, &flag);
@@ -115,6 +145,10 @@ public:
             exit(-1);
         }
         glDeleteShader(vertexShader);
+        if(geometryCode_)
+        {
+            glDeleteShader(geometryShader);
+        }
         glDeleteShader(fragShader);
     }
     void use()
